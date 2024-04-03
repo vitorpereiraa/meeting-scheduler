@@ -1,0 +1,5 @@
+package pj.domain.schedule
+
+trait RoleOps[Role]:
+  def isPresident(role: Role): Boolean
+  def isAdvisor(role: Role): Boolean
