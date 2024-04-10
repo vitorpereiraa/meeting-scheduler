@@ -1,11 +1,11 @@
 import pj.domain.Result
-import pj.domain.schedule.Agenda
-import pj.domain.schedule.SimpleTypes.Duration
-import pj.xml.XML
+import pj.domain.schedule.{Agenda, President, Role, Viva}
+import pj.domain.schedule.SimpleTypes.{Duration, Student, TeacherId, Title}
+import pj.xml.XML.*
 
-import scala.xml.{Elem, Node, UnprefixedAttribute}
+import scala.xml.{Elem, Node, NodeSeq, UnprefixedAttribute}
 
-val agenda : Elem =
+val xml : Elem =
     <agenda xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../agenda.xsd"
             duration="01:00:00">
         <vivas>
@@ -43,18 +43,35 @@ val agenda : Elem =
         </resources>
     </agenda>
 
-agenda \@ "duration"
+def duration(xml: Node): Result[Duration] =
+    for
+        durationStr <- fromAttribute(xml, "duration")
+        duration    <- Duration.from(durationStr)
+    yield duration
 
-(agenda \ "vivas" \ "viva")
-  .map(v => v \@ "student").toList
+duration(xml)
 
-agenda \ "resources"
+def roles(xml: Node): Result[Set[Role]] =
+    for
+        presidentNode  <- fromNode(xml, "president")
+        presidentIdStr <- fromAttribute(presidentNode, "id")
+        presidentId    <- TeacherId.from(presidentIdStr)
+        president      <- Right(President(presidentId))
+    yield Set(president)
 
-agenda \\ "teacher"
+def viva(xml: Node): Result[Viva] =
+    for
+      studentStr <- fromAttribute(xml, "student")
+      student    <- Student.from(studentStr)
+      titleStr   <- fromAttribute(xml, "title")
+      title      <- Title.from(titleStr)
+      roles      <- roles(xml)
+      viva       <- Viva.from(student, title, roles)
+    yield viva
 
-(agenda \\ "teacher" \ "availability").map(a => (a \@ "start", a \@ "end")).toList
+def vivas(xml: NodeSeq): Result[List[Viva]] =
+    traverse(xml \ "viva", viva)
 
-//for {
-//  duration     <- agenda \@ "duration"
-//  availability <-
-//} yield
+vivas(xml \ "vivas")
+
+(xml \\ "viva").map(v => fromNode(v, "president"))

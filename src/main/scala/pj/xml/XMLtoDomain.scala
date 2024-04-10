@@ -31,12 +31,12 @@ object XMLtoDomain:
 
   def agenda(xml: Node): Result[Agenda] =
     for
-      agendan   <- fromNode(xml, "Agenda")
-      durations <- fromAttribute(agendan, "duration")
-      duration  <- Duration.from(durations)
-      vivasn    <- fromNode(agendan, "vivas")
-      vivas     <- vivas(vivasn)
-      juryn     <- fromNode(agendan, "jury")
-      jury      <- jurySet(juryn)
+      agendaNode  <- fromNode(xml, "Agenda")
+      durationStr <- fromAttribute(agendaNode, "duration")
+      duration    <- Duration.from(durationStr)
+      vivasNode   <- fromNode(agendaNode, "vivas")
+      vivas       <- vivas(vivasNode)
+      juryNode    <- fromNode(agendaNode, "jury")
+      jury        <- jurySet(juryNode)
     yield Agenda(duration, vivas, jury)
 
