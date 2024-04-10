@@ -1,29 +1,11 @@
-# README #
+# Architectural Decision Log
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This log lists the architectural decisions for MS01.
 
-### What is this repository for? ###
+* [ADR-0001](decisions/0001-viva-model.md) - Should viva use as attribute, a set of roles or president and advisor roles?
+* [ADR-0002](decisions/0002-role-operations.md) - Should role operations be a companion object or module?
+* [ADR-0003](decisions/0003-make-collection-attributes-opaque.md) - Should collection attributes be opaque?
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+For new ADRs, please use [template.md](template.md) as basis.
+More information on MADR is available at <https://adr.github.io/madr/>.
+General information about architectural decision records is available at <https://adr.github.io/>.

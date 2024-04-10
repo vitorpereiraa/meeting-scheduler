@@ -43,19 +43,6 @@ val agenda : Elem =
         </resources>
     </agenda>
 
-//val result = XML.traverse(agenda, f => elem)
-
-def create(xml: Elem): Int = agenda match
-    case Elem(str, str1, data, binding, node) => 1
-    case _ => 0
-
-val result = create(agenda)
-
-//    case Elem(str, str1, data, binding, node) => 1
-//    case Elem(_, "agenda", UnprefixedAttribute("duration", value, _), _*) => 1
-//        val duration = Duration.from(value)
-//        Agenda()
-
 agenda \@ "duration"
 
 (agenda \ "vivas" \ "viva")
@@ -66,10 +53,6 @@ agenda \ "resources"
 agenda \\ "teacher"
 
 (agenda \\ "teacher" \ "availability").map(a => (a \@ "start", a \@ "end")).toList
-
-(agenda \\ "external" \ "availability")
-
-for(viva <- agenda \ "vivas" \ "viva") print(viva)
 
 //for {
 //  duration     <- agenda \@ "duration"
