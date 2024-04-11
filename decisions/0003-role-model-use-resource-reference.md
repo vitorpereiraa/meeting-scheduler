@@ -1,9 +1,9 @@
 # Update role model to reference the resource object directly instead of id
 
 * Status: PENDING
-* Creator: Unassigned
+* Creator: Vitor Pereira (1191244)
 * Deciders: Group
-* Date: 28/03/2024
+* Date: 10/04/2024
 
 ## Context and Problem Statement
 

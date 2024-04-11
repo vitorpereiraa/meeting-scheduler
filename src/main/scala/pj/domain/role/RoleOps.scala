@@ -1,4 +1,4 @@
-package pj.domain.schedule
+package pj.domain.role
 
 trait RoleOps[Role]:
   def isPresident(role: Role): Boolean

@@ -1,7 +1,5 @@
 package pj.domain
 
-import pj.domain.schedule.Role
-
 type Result[A] = Either[DomainError,A]
 
 enum DomainError:
@@ -11,9 +9,11 @@ enum DomainError:
   case InvalidTitle(value: String)
   case InvalidName(value: String)
   case InvalidStudent(value: String)
+  case InvalidResourceId(value: String)
   case InvalidTeacherId(value: String)
   case InvalidExternalId(value: String)
-  case InvalidJury(value: Set[Role])
+  case InvalidJury(value: List[Role])
   case InvalidDateTime(value: String)
-  case InvalidPreference(value: Int)
+  case InvalidPreference(value: String)
+  case ResourceNotFound(value: ResourceId)
   

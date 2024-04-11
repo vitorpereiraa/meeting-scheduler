@@ -1,4 +1,4 @@
-package pj.domain.schedule
+package pj.domain
 
 import pj.domain.DomainError.*
 import pj.domain.{DomainError, Result}
@@ -22,30 +22,6 @@ object SimpleTypes:
   extension (d: Duration)
     @targetName("DurationTo")
     def to: String = d.toString
-
-  opaque type TeacherId = String
-  object TeacherId:
-    private val pattern: Regex = """T[0-9]{3}""".r
-    def from(value: String): Result[TeacherId] =
-      if pattern.matches(value) then
-        Right(value)
-      else
-        Left(InvalidTeacherId(value))
-  extension (t: TeacherId)
-    @targetName("TeacherIdTo")
-    def to: String = t
-
-  opaque type ExternalId = String
-  object ExternalId:
-    private val pattern: Regex = """E[0-9]{3}""".r
-    def from(value: String): Result[ExternalId] =
-      if pattern.matches(value) then
-        Right(value)
-      else
-        Left(InvalidExternalId(value))
-  extension (e: ExternalId)
-    @targetName("ExternalIdTo")
-    def to: String = e
 
   opaque type Title = String
   object Title:
@@ -90,8 +66,13 @@ object SimpleTypes:
     val lowerLimit: Int = 1
     def from(value: Int): Result[Preference] =
       if value <= 5 && value >= 1 then
-        Right(value) else
-        Left(InvalidPreference(value))
+        Right(value) else Left(InvalidPreference(value.toString))
+    def from(value: String): Result[Preference] =
+      Try(value.toInt)  
+        .fold(
+          error   => Left(InvalidPreference(value)),
+          success => from(success)
+        )
   extension (p: Preference)
     @targetName("PreferenceTo")
     def to: Int = p
@@ -102,7 +83,7 @@ object SimpleTypes:
     def from(value: Int): Result[SummedPreference] =
       if value >= 1 then
         Right(value) else
-        Left(InvalidPreference(value))
+        Left(InvalidPreference(value.toString))
   extension (sp: SummedPreference)
     @targetName("SummedPreferenceTo")
     def to: Int = sp

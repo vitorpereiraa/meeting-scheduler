@@ -17,8 +17,8 @@ final case class Viva(student: Student,
                       title: Title,
                       president: Role.President,
                       advisor: Role.Advisor,
-                      coAdvisors: Set[Role.CoAdvisor],
-                      superVisors: Set[Role.Supervisor])
+                      coAdvisors: List[Role.CoAdvisor],
+                      superVisors: List[Role.Supervisor])
 ```
 
 Option 2
@@ -26,7 +26,7 @@ Option 2
 final case class Viva(
                         student: Student,
                         title: Title,
-                        jury: Set[Role] 
+                        jury: List[Role] 
                       )
 ```
 
