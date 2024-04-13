@@ -56,6 +56,9 @@ object SimpleTypes:
           error => Left(InvalidDateTime(dateTimeString)),
           success => Right(success)
         )
+    def isEndTimeAfterStartTime (start: DateTime, end: DateTime): Result[Boolean] =
+      if(start.compareTo(end)) < 0 then Right(true) else Left(InvalidDateTime(end.toString))
+    
   extension (d: DateTime)
     @targetName("DateTimeTo")
     def to: String = d.toString

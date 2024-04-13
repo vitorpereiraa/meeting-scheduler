@@ -14,6 +14,7 @@ enum DomainError:
   case InvalidExternalId(value: String)
   case InvalidJury(value: List[Role])
   case InvalidDateTime(value: String)
+  case InvalidEndDateTime(value: String)
   case InvalidPreference(value: String)
   case ResourceNotFound(value: ResourceId)
   
