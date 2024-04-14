@@ -18,9 +18,10 @@ object ScheduleMS01 extends Schedule:
     // Transform xml in an Agenda
     for
       agenda <- XMLtoDomain.agenda(xml)
-      // calculate and update availability of resources
+      // First Come First Serve
       // TODO !!!
-
+      // updateAvailability
+      updateAvailability <- AvailabilityOperations.updateAvailability(???, ???)
       // calculate preferences for each student
       preferences <- PreferencesCalculation.calculatePreferences(agenda, ???, ???, ???)
       // generate complete schedule
