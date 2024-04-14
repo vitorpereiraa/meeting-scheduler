@@ -4,15 +4,28 @@ interface Schedule
 
 class ScheduleMS01 {
     +create(xml: Elem): Result[Elem]
-    -calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[Preference]] =
+}
+
+class XMLtoDomain {
+    +agenda(xml)
+}
+
+class DomainToXML {
+    +generateOutputXML(outputSchedule: Result[CompleteSchedule]): Elem
+    -generateErrorXML(error: DomainError): Elem
+    -vivaListToXML(schedule: CompleteSchedule): Elem
 }
 
 class PreferencesCalculation {
+    +calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[SummedPreference]]
+    +calculatePreferenceValuesByStudent(agenda: Agenda, student: Student, startTime: DateTime, endTime: DateTime): Result[Preference]
     +sumPreferences(list: List[Preference]): Result[SummedPreference]
-    +calculatePreferenceValuesByStudent(agenda: Agenda, student: Student, startTime: DateTime, endTime: DateTime): Result[Preference] =
+    +sumSummedPreferences(list: List[SummedPreference]): Result[SummedPreference]
 }
 
-ScheduleMS01 -up-|> Schedule : extends
-ScheduleMS01 -down-> PreferencesCalculation : uses
+ScheduleMS01 --left-|> Schedule : extends
+ScheduleMS01 --right-> XMLtoDomain : uses
+ScheduleMS01 --down-> PreferencesCalculation : uses
+ScheduleMS01 ---down-> DomainToXML : uses
 
 @enduml
