@@ -1,5 +1,7 @@
 package pj.domain
 
+import pj.domain.SimpleTypes.{DateTime, Student}
+
 type Result[A] = Either[DomainError,A]
 
 enum DomainError:
@@ -16,5 +18,7 @@ enum DomainError:
   case InvalidDateTime(value: String)
   case InvalidEndDateTime(value: String)
   case InvalidPreference(value: String)
-  case ResourceNotFound(value: ResourceId)
+  case ResourceNotFound(value: ResourceId)  
+  case StudentNotFound(value: Student)  
+  case AvailabilityNotFound(student: Student, startTime: DateTime, endTime: DateTime)
   

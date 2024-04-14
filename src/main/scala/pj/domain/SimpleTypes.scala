@@ -59,6 +59,9 @@ object SimpleTypes:
     def isEndTimeAfterStartTime (start: DateTime, end: DateTime): Result[Boolean] =
       if(start.compareTo(end)) < 0 then Right(true) else Left(InvalidDateTime(end.toString))
 
+    def isBetween (start: DateTime, end: DateTime, dateTime: DateTime): Boolean =
+      if(dateTime.compareTo(start) >= 0 && dateTime.compareTo(end) <= 0) then true else false
+
   extension (d: DateTime)
     @targetName("DateTimeTo")
     def to: String = d.toString

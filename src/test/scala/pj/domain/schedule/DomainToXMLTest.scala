@@ -43,7 +43,7 @@ class DomainToXMLTest extends AnyFunSuite:
       title         <- Title.from("Title")
       start         <- DateTime.from("2022-01-01T09:00:00")
       end           <- DateTime.from("2022-01-01T10:00:00")
-      preference    <- Preference.from(4)
+      preference    <- SummedPreference.from(4)
       totalPref     <- SummedPreference.from(4)
     yield
       val vivaSchedule = ScheduledViva(student, title, jury, start, end, preference)
