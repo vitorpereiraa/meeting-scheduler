@@ -5,7 +5,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.Role.*
 import pj.domain.*
 import pj.domain.SimpleTypes.*
-import pj.domain.{ExternalId, Role, VivaSchedule}
+import pj.domain.{ExternalId, Role, ScheduledViva}
 import pj.xml.DomainToXML
 
 import scala.xml.{Elem, PrettyPrinter}
@@ -46,8 +46,8 @@ class DomainToXMLTest extends AnyFunSuite:
       preference    <- Preference.from(4)
       totalPref     <- SummedPreference.from(4)
     yield
-      val vivaSchedule = VivaSchedule(student, title, jury, start, end, preference)
-      val outputSchedule = OutputSchedule(List(vivaSchedule), totalPref)
+      val vivaSchedule = ScheduledViva(student, title, jury, start, end, preference)
+      val outputSchedule = CompleteSchedule(List(vivaSchedule), totalPref)
       val xml = DomainToXML.generateOutputXML(Right(outputSchedule))
       // Create a PrettyPrinter
       val printer = new PrettyPrinter(120, 4)

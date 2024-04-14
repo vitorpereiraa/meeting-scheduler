@@ -56,5 +56,14 @@ final case class External(id: ResourceId, name: Name, availability: List[Availab
 
 final case class Availability(start: DateTime, end: DateTime, preference: Preference)
 
-final case class ScheduledViva(student: Student, title: Title, start: DateTime, end: DateTime, summedPreference: SummedPreference)
-final case class CompleteSchedule(scheduledVivas: List[ScheduledViva], summedPreference: SummedPreference)
+final case class ScheduledViva(student: Student, title: Title, jury: List[Role], start: DateTime, end: DateTime, preference: Preference)
+
+object ScheduledViva:
+  def from(student: Student, title: Title, jury: List[Role], start: DateTime, end: DateTime, preference: Preference) =
+    for
+      // Viva validation - has the same validation as ScheduledViva
+      viva <- Viva.from(student, title, jury)
+      // add specific validation for ScheduledViva
+      _ <- DateTime.isEndTimeAfterStartTime(start, end)
+    yield ScheduledViva(student, title, jury, start, end, preference)
+final case class CompleteSchedule(scheduledVivaList: List[ScheduledViva], totalPreference: SummedPreference)
