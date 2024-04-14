@@ -1,0 +1,18 @@
+@startuml
+
+interface Schedule
+
+class ScheduleMS01 {
+    +create(xml: Elem): Result[Elem]
+    -calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[Preference]] =
+}
+
+class PreferencesCalculation {
+    +sumPreferences(list: List[Preference]): Result[SummedPreference]
+    +calculatePreferenceValuesByStudent(agenda: Agenda, student: Student, startTime: DateTime, endTime: DateTime): Result[Preference] =
+}
+
+ScheduleMS01 -up-|> Schedule : extends
+ScheduleMS01 -down-> PreferencesCalculation : uses
+
+@enduml

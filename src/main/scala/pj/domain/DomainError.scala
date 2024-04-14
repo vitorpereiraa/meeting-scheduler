@@ -19,6 +19,6 @@ enum DomainError:
   case InvalidEndDateTime(value: String)
   case InvalidPreference(value: String)
   case ResourceNotFound(value: ResourceId)  
-  case StudentNotFound(value: Student)  
+  case StudentNotFound(value: String)  
   case AvailabilityNotFound(student: Student, startTime: DateTime, endTime: DateTime)
   

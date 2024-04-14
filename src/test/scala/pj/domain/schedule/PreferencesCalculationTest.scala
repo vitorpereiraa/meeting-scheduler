@@ -13,11 +13,11 @@ class PreferencesCalculationTest extends AnyFunSuite:
       p3 <- Preference.from(3)
       p4 <- Preference.from(4)
       p5 <- Preference.from(5)
-      sum <- sumPreferences(List(p1, p2, p3, p4, p5))
+      sum <- PreferencesCalculation.sumPreferences(List(p1, p2, p3, p4, p5))
     yield assert(sum.to == 15)
 
   test("Sum preferences - Invalid Preference"):
-    val sum = sumPreferences(List())
+    val sum = PreferencesCalculation.sumPreferences(List())
     assert(Left(InvalidPreference("0")) === sum)
 
   test("Calculate Preference Values By Student - OK"):
@@ -54,7 +54,7 @@ class PreferencesCalculationTest extends AnyFunSuite:
       resources = List(teacher1, teacher2, external1)
       agenda = Agenda(dur, vivas, resources)
     yield 
-      val calculation = calculatePreferenceValuesByStudent(agenda,student1,date1, date2)
+      val calculation = PreferencesCalculation.calculatePreferenceValuesByStudent(agenda,student1,date1, date2)
       println(calculation)
       assert(calculation.isRight)
       assert(Right(2) === calculation)
