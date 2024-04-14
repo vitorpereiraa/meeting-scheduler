@@ -22,22 +22,11 @@ object ScheduleMS01 extends Schedule:
       // TODO !!!
 
       // calculate preferences for each student
-      preferences <- calculatePreferences(agenda, ???, ???, ???)
+      preferences <- PreferencesCalculation.calculatePreferences(agenda, ???, ???, ???)
       // generate complete schedule
-      totalPref <- PreferencesCalculation.sumPreferences(preferences)
+      totalPref <- PreferencesCalculation.sumSummedPreferences(preferences)
       // generate the output file
     yield DomainToXML.generateOutputXML(???)
 
 
-  private def calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[Preference]] =
-    @tailrec
-    // for each student calculate the list of summedpreferences
-    def loop(students: List[Student], acc: List[Preference]): Result[List[Preference]] =
-      students match
-        case Nil => Right(acc)
-        case student :: tail =>
-          val summedPreference = PreferencesCalculation.calculatePreferenceValuesByStudent(agenda, student, startTime, endTime)
-          summedPreference match
-            case Left(error) => Left(error)
-            case Right(pref) => loop(tail, pref :: acc)
-    loop(students, Nil)
+  

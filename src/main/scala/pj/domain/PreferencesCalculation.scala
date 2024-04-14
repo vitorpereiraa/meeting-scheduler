@@ -4,6 +4,8 @@ import jdk.incubator.foreign.ResourceScope
 import pj.domain.DomainError.*
 import pj.domain.SimpleTypes.{DateTime, Preference, Student, SummedPreference}
 
+import scala.annotation.tailrec
+
 object PreferencesCalculation:
   
   /**
@@ -20,6 +22,13 @@ object PreferencesCalculation:
       SummedPreference.from(sum)
     else
       Left(InvalidPreference(sum.toString))
+
+  def sumSummedPreferences(list: List[SummedPreference]): Result[SummedPreference] =
+    val sum = list.foldLeft(0)((acc, pref) => acc + pref.to)
+    if sum >= 1 then
+      SummedPreference.from(sum)
+    else
+      Left(InvalidPreference(sum.toString))
   
   /**
    * Agenda contains the viva identification, a start datetime, an end datetime and a numeric schedule preference.
@@ -30,7 +39,7 @@ object PreferencesCalculation:
    * @param student
    * @return Result[Preference]
    */
-  def calculatePreferenceValuesByStudent(agenda: Agenda, student: Student, startTime: DateTime, endTime: DateTime): Result[Preference] =
+  def calculatePreferenceValuesByStudent(agenda: Agenda, student: Student, startTime: DateTime, endTime: DateTime): Result[SummedPreference] =
     println("startTime: " + startTime)
     println("endTime: " + endTime)
     val vivas = agenda.vivas.find(_.student == student);
@@ -53,4 +62,17 @@ object PreferencesCalculation:
         Left(AvailabilityNotFound(student, startTime, endTime))
       else
         //sum the preferences
-        Preference.from(preferences.foldLeft(0)((acc, pref) => acc + pref.to))
+        SummedPreference.from(preferences.foldLeft(0)((acc, pref) => acc + pref.to))
+  def calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[SummedPreference]] =
+    @tailrec
+    // for each student calculate the list of summedpreferences
+    def loop(students: List[Student], acc: List[SummedPreference]): Result[List[SummedPreference]] =
+      students match
+        case Nil => Right(acc)
+        case student :: tail =>
+          val summedPreference = PreferencesCalculation.calculatePreferenceValuesByStudent(agenda, student, startTime, endTime)
+          println(summedPreference)
+          summedPreference match
+            case Left(error) => Left(error)
+            case Right(pref) => loop(tail, pref :: acc)
+    loop(students, Nil)
