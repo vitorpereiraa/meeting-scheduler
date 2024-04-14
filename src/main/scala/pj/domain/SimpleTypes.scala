@@ -22,6 +22,7 @@ object SimpleTypes:
   extension (d: Duration)
     @targetName("DurationTo")
     def to: String = d.toString
+    def toLocalTime: LocalTime = d
 
   opaque type Title = String
   object Title:
@@ -67,7 +68,10 @@ object SimpleTypes:
     def to: String = d.toString
     def isAfter(other: DateTime): Boolean = d.isAfter(other)
     def isBefore(other: DateTime): Boolean = d.isBefore(other)
+    def minus(other: Duration): DateTime = d.minusHours(other.toLocalTime.getHour).minusMinutes(other.toLocalTime.getMinute)
+    def plus(other: Duration): DateTime = d.plusHours(other.toLocalTime.getHour).plusMinutes(other.toLocalTime.getMinute)
 
+        
   opaque type Preference = Int
   object Preference:
     private val upperLimit: Int = 5

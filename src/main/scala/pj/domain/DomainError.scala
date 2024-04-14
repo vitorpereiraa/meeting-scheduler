@@ -22,4 +22,5 @@ enum DomainError:
   case StudentNotFound(value: String)  
   case AvailabilityNotFound(student: Student, startTime: DateTime, endTime: DateTime)
   case ResourceInvalid(value: ResourceId)
+  case NoAvailableSlot()
   
