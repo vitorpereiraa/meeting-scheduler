@@ -12,11 +12,18 @@ object AvailabilityOperations :
       case _ => Left(ResourceInvalid(resource.id))
 
   def removeInterval(availability: Availability, viva: ScheduledViva): List[Availability] =
-    if ((viva.start.isAfter(availability.start) && viva.start.isBefore(availability.end)) || (viva.end.isAfter(availability.start) && viva.end.isBefore(availability.end)))
+    if (viva.start.isEqual(availability.start) && viva.end.isEqual(availability.end))
+      List()
+    else if (viva.start.isEqual(availability.start) && viva.end.isBefore(availability.end))
+      List(Availability(viva.end, availability.end, availability.preference))
+    else if (viva.start.isAfter(availability.start) && viva.end.isEqual(availability.end))
+      List(Availability(availability.start, viva.start, availability.preference))
+    else if ((viva.start.isAfter(availability.start) && viva.start.isBefore(availability.end)) || (viva.end.isAfter(availability.start) && viva.end.isBefore(availability.end)))
       val beforeViva = Availability(availability.start, viva.start, availability.preference)
       val afterViva = Availability(viva.end, availability.end, availability.preference)
       List(beforeViva, afterViva)
     else
       List(availability)
+
 
 

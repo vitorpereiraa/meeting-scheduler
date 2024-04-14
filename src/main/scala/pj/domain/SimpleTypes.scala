@@ -66,7 +66,8 @@ object SimpleTypes:
     @targetName("DateTimeTo")
     def to: String = d.toString
     def isAfter(other: DateTime): Boolean = d.isAfter(other)
-    def isBefore(other: DateTime): Boolean = d.isBefore(other)
+    def isBefore(other: DateTime): Boolean = d.isBefore(other) 
+    def isEqual(other: DateTime): Boolean = d.isEqual(other)
 
   opaque type Preference = Int
   object Preference:
