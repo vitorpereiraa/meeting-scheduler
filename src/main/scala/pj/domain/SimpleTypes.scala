@@ -67,10 +67,10 @@ object SimpleTypes:
     @targetName("DateTimeTo")
     def to: String = d.toString
     def isAfter(other: DateTime): Boolean = d.isAfter(other)
-    def isBefore(other: DateTime): Boolean = d.isBefore(other)
+    def isBefore(other: DateTime): Boolean = d.isBefore(other) 
+    def isEqual(other: DateTime): Boolean = d.isEqual(other)
     def minus(other: Duration): DateTime = d.minusHours(other.toLocalTime.getHour).minusMinutes(other.toLocalTime.getMinute)
     def plus(other: Duration): DateTime = d.plusHours(other.toLocalTime.getHour).plusMinutes(other.toLocalTime.getMinute)
-
         
   opaque type Preference = Int
   object Preference:
