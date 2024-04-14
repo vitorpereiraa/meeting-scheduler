@@ -23,9 +23,15 @@ class PreferencesCalculation {
     +sumSummedPreferences(list: List[SummedPreference]): Result[SummedPreference]
 }
 
+class AvailabilityOperations {
+    +updateAvailability(resource: Resource, viva: ScheduledViva): Result[Resource]
+    +removeInterval(availability: Availability, viva: ScheduledViva): List[Availability]
+}
+
 ScheduleMS01 --left-|> Schedule : extends
 ScheduleMS01 --right-> XMLtoDomain : uses
 ScheduleMS01 --down-> PreferencesCalculation : uses
 ScheduleMS01 ---down-> DomainToXML : uses
+ScheduleMS01 -down-> AvailabilityOperations : uses
 
 @enduml
