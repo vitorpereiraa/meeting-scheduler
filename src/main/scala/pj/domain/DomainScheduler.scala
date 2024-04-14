@@ -1,9 +1,8 @@
 package pj.domain
 
 import pj.domain.SimpleTypes.*
-import pj.domain.role.RoleService.{isAdvisor, isPresident}
 
-final case class OutputSchedule(vivasSchedule: List[VivaSchedule], totalPreference: Preference)
+final case class OutputSchedule(vivasSchedule: List[VivaSchedule], totalPreference: SummedPreference)
 
 final case class VivaSchedule(student: Student, title: Title, jury: List[Role],
                               start: DateTime, end: DateTime, preference: Preference)

@@ -6,10 +6,9 @@ import pj.domain.Role.*
 import pj.domain.*
 import pj.domain.SimpleTypes.*
 import pj.domain.{ExternalId, Role, VivaSchedule}
-import pj.io.FileIO
 import pj.xml.DomainToXML
 
-import scala.xml.{Elem, PrettyPrinter, Utility}
+import scala.xml.{Elem, PrettyPrinter}
 
 class DomainToXMLTest extends AnyFunSuite:
   test("DomainToXML"):  
@@ -45,7 +44,7 @@ class DomainToXMLTest extends AnyFunSuite:
       start         <- DateTime.from("2022-01-01T09:00:00")
       end           <- DateTime.from("2022-01-01T10:00:00")
       preference    <- Preference.from(4)
-      totalPref     <- Preference.from(4)
+      totalPref     <- SummedPreference.from(4)
     yield
       val vivaSchedule = VivaSchedule(student, title, jury, start, end, preference)
       val outputSchedule = OutputSchedule(List(vivaSchedule), totalPref)

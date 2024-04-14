@@ -58,17 +58,17 @@ object SimpleTypes:
         )
     def isEndTimeAfterStartTime (start: DateTime, end: DateTime): Result[Boolean] =
       if(start.compareTo(end)) < 0 then Right(true) else Left(InvalidDateTime(end.toString))
-    
+
   extension (d: DateTime)
     @targetName("DateTimeTo")
     def to: String = d.toString
 
   opaque type Preference = Int
   object Preference:
-    val upperLimit: Int = 5
-    val lowerLimit: Int = 1
+    private val upperLimit: Int = 5
+    private val lowerLimit: Int = 1
     def from(value: Int): Result[Preference] =
-      if value <= 5 && value >= 1 then
+      if value <= upperLimit && value >= lowerLimit then
         Right(value) else Left(InvalidPreference(value.toString))
     def from(value: String): Result[Preference] =
       Try(value.toInt)  
@@ -82,11 +82,12 @@ object SimpleTypes:
 
   opaque type SummedPreference = Int
   object SummedPreference:
-    val lowerLimit: Int = 1
+    private val lowerLimit: Int = 1
     def from(value: Int): Result[SummedPreference] =
-      if value >= 1 then
+      if value >= lowerLimit then
         Right(value) else
         Left(InvalidPreference(value.toString))
+
   extension (sp: SummedPreference)
     @targetName("SummedPreferenceTo")
     def to: Int = sp
