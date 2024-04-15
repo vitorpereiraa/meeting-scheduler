@@ -16,5 +16,9 @@ object ScheduleOperation:
       ))) match
       case Some(slots) => Right(slots)
       case None => Left(NoAvailableSlot())
-    
-    
+
+  def getFirstAvailability(result: Result[List[Availability]]): Option[Availability] =
+    result match {
+      case Right(availabilities) => availabilities.headOption
+      case Left(_) => None
+    }  

@@ -3,6 +3,7 @@ package pj.domain.schedule
 import scala.language.adhocExtensions
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
+import pj.domain.DomainError.NoAvailableSlot
 import pj.domain.SimpleTypes.*
 import pj.domain.schedule.ScheduleMS01
 
@@ -187,3 +188,24 @@ private class ScheduleOperationTest extends AnyFunSuite:
       _ => false,
       slot => slot.headOption.fold(false)(a => a.start == start2 && a.end == end2)
     )
+
+  test("getFirstAvailability returns the first availability when the result is a Right"):
+    for
+      start <- DateTime.from("2024-04-14T09:00")
+      end <- DateTime.from("2024-04-14T12:00")
+      preference <- Preference.from(3)
+      availability = Availability(start, end, preference)
+      availabilities = List[Availability](availability)
+      result = Right(availabilities)
+      firstAvailability = ScheduleOperation.getFirstAvailability(result)
+    yield assert(firstAvailability === Some(availability))
+
+  test("getFirstAvailability returns None when the result is a Left"):
+    val result: Result[List[Availability]] = Left(NoAvailableSlot())
+    val firstAvailability = ScheduleOperation.getFirstAvailability(result)
+    assert(firstAvailability === None)
+
+  test("getFirstAvailability returns None when the list of availabilities is empty"):
+    val result = Right(List.empty[Availability])
+    val firstAvailability = ScheduleOperation.getFirstAvailability(result)
+    assert(firstAvailability === None)
