@@ -1,7 +1,7 @@
 @startuml
 Class Resource
 Class Availability
-Class VIVA
+Class Viva
 Class Student
 Class Teacher
 Class External
@@ -14,19 +14,19 @@ Availability : start : DateTime
 Availability : end : DateTime
 Availability : preference : Preference
 
-VIVA : student : Student
-VIVA : title : Title
-VIVA : jury : List[Role]
-VIVA : start : DateTime
-VIVA : end : DateTime
-VIVA : preference : SummedPreference
+Viva : student : Student
+Viva : title : Title
+Viva : jury : List[Role]
+Viva : start : DateTime
+Viva : end : DateTime
+Viva : preference : SummedPreference
 
 Student : name : String
 
 Resource <|-- Teacher : extends
 Resource <|-- External : extends
-VIVA "1" - "*" Resource
-VIVA "1" - "1" Availability
-Resource "1" -- "1..*" Availability
-Student "1" - "1" VIVA
+Viva "1" - "*" Resource
+Viva "1" - "1" Availability
+Resource "1" -- "0..*" Availability
+Student "1" - "1" Viva
 @enduml
