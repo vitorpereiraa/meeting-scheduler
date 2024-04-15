@@ -11,14 +11,20 @@ object ScheduleOperation:
     availabilities.exists(a => !a.start.isAfter(start) && !a.end.isBefore(end))
 
   def findMatchingSlots(availabilities: List[List[Availability]], duration: Duration): Result[List[Availability]] =
-    availabilities.find(_.exists(availability =>
-      availabilities.forall(_.exists(other => other.start.isBefore(availability.end) && other.end.isAfter(availability.start))
-      ))) match
-      case Some(slots) => Right(slots)
-      case None => Left(NoAvailableSlot())
+    val matchingSlots = for {
+      availabilityList <- availabilities
+      availability <- availabilityList
+      if java.time.Duration.between(availability.start.toLocalDateTime, availability.end.toLocalDateTime).toMinutes >= duration.toMinutes
+      if availabilities.forall(_.exists(other => other.start.isBefore(availability.end) && other.end.isAfter(availability.start)))
+    } yield availability
 
-  def getFirstAvailability(result: Result[List[Availability]]): Option[Availability] =
+    if (matchingSlots.isEmpty) Left(NoAvailableSlot())
+    else Right(matchingSlots)
+
+  def getFirstAvailability(result: Result[List[Availability]]): Result[Availability] =
     result match {
-      case Right(availabilities) => availabilities.headOption
-      case Left(_) => None
-    }  
+      case Right(availabilities) => availabilities.headOption match
+        case Some(availability) => Right(availability)
+        case None => Left(NoAvailableSlot())
+      case Left(error) => Left(error)
+    }

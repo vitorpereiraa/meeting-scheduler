@@ -23,6 +23,7 @@ object SimpleTypes:
     @targetName("DurationTo")
     def to: String = d.toString
     def toLocalTime: LocalTime = d
+    def toMinutes: Int = d.getHour * 60 + d.getMinute
 
   opaque type Title = String
   object Title:
@@ -66,10 +67,12 @@ object SimpleTypes:
   extension (d: DateTime)
     @targetName("DateTimeTo")
     def to: String = d.toString
+    def toLocalDateTime: LocalDateTime = d
     def isAfter(other: DateTime): Boolean = d.isAfter(other)
     def isBefore(other: DateTime): Boolean = d.isBefore(other) 
     def isEqual(other: DateTime): Boolean = d.isEqual(other)
     def minus(other: Duration): DateTime = d.minusHours(other.toLocalTime.getHour).minusMinutes(other.toLocalTime.getMinute)
+    def minus(other: DateTime): Duration = d.toLocalTime.minusHours(other.toLocalTime.getHour).minusMinutes(other.toLocalTime.getMinute)
     def plus(other: Duration): DateTime = d.plusHours(other.toLocalTime.getHour).plusMinutes(other.toLocalTime.getMinute)
         
   opaque type Preference = Int

@@ -198,14 +198,14 @@ private class ScheduleOperationTest extends AnyFunSuite:
       availabilities = List[Availability](availability)
       result = Right(availabilities)
       firstAvailability = ScheduleOperation.getFirstAvailability(result)
-    yield assert(firstAvailability === Some(availability))
+    yield assert(firstAvailability === Right(availability))
 
-  test("getFirstAvailability returns None when the result is a Left"):
+  test("getFirstAvailability returns Left(NoAvailableSlot()) when the result is a Left"):
     val result: Result[List[Availability]] = Left(NoAvailableSlot())
     val firstAvailability = ScheduleOperation.getFirstAvailability(result)
-    assert(firstAvailability === None)
+    assert(firstAvailability === Left(NoAvailableSlot()))
 
-  test("getFirstAvailability returns None when the list of availabilities is empty"):
+  test("getFirstAvailability returns Left(NoAvailableSlot()) when the list of availabilities is empty"):
     val result = Right(List.empty[Availability])
     val firstAvailability = ScheduleOperation.getFirstAvailability(result)
-    assert(firstAvailability === None)
+    assert(firstAvailability === Left(NoAvailableSlot()))
