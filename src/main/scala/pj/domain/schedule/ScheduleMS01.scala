@@ -21,7 +21,7 @@ object ScheduleMS01 extends Schedule:
       // First Come First Serve
       scheduledViva <- ScheduleOperation.scheduleVivaFromAgenda(agenda)
       // updateAvailability
-      updateAvailability <- AvailabilityOperations.updateAvailability(???, ???)
+      //updateAvailability <- AvailabilityOperations.updateAvailability(???, ???, ???)
       // calculate preferences for each student
       preferences <- PreferencesCalculation.calculatePreferences(agenda, ???, ???, ???)
       // generate complete schedule

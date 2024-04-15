@@ -17,7 +17,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Alice")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, scheduledViva)
+      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
       expected = List(
         Availability(start, vivaStart, preference),
         Availability(vivaEnd, end, preference)
@@ -36,7 +36,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Bob")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, scheduledViva)
+      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
     yield assert(result == List(availability))
 
   test("Remove Interval - All Viva"):
@@ -51,7 +51,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Alice")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, scheduledViva)
+      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
       expected = List()
     yield assert(result == expected)
 
@@ -67,7 +67,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Bob")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, scheduledViva)
+      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
       expected = List(
         Availability(start, vivaStart, preference)
       )

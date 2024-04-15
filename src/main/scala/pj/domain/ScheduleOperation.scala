@@ -40,6 +40,7 @@ object ScheduleOperation:
         availabilities <- getAvailabilitiesForVivas(viva, agenda.resources)
         matchingSlots = findMatchingSlots(availabilities, agenda.duration)
         firstAvailability <- getFirstAvailability(matchingSlots)
+        updateAvailability <- AvailabilityOperations.updateAvailability(agenda.resources, firstAvailability.start, firstAvailability.end)
         preferences <- SummedPreference.from(1)
       } yield ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, firstAvailability.end, preferences)
     }.partitionMap(identity)
