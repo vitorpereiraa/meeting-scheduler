@@ -1,6 +1,5 @@
 package pj.domain
 
-import jdk.incubator.foreign.ResourceScope
 import pj.domain.DomainError.*
 import pj.domain.SimpleTypes.{DateTime, Preference, Student, SummedPreference}
 

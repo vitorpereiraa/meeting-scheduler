@@ -29,6 +29,4 @@ object ScheduleMS01 extends Schedule:
       // generate the output file
     yield DomainToXML.generateOutputXML(???)
 
-  def isAvailable(start: DateTime, end: DateTime, availabilities: List[Availability]): Boolean =
-    availabilities.exists(a => !a.start.isAfter(start) && !a.end.isBefore(end))
-    
+  
