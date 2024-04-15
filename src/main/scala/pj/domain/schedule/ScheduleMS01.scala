@@ -19,7 +19,7 @@ object ScheduleMS01 extends Schedule:
     for
       agenda <- XMLtoDomain.agenda(xml)
       // First Come First Serve
-      // TODO !!!
+      scheduledViva <- ScheduleOperation.scheduleVivaFromAgenda(agenda)
       // updateAvailability
       updateAvailability <- AvailabilityOperations.updateAvailability(???, ???)
       // calculate preferences for each student
@@ -29,4 +29,3 @@ object ScheduleMS01 extends Schedule:
       // generate the output file
     yield DomainToXML.generateOutputXML(???)
 
-  

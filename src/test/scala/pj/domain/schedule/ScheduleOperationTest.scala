@@ -209,3 +209,117 @@ private class ScheduleOperationTest extends AnyFunSuite:
     val result = Right(List.empty[Availability])
     val firstAvailability = ScheduleOperation.getFirstAvailability(result)
     assert(firstAvailability === Left(NoAvailableSlot()))
+
+  test("getAvailabilitiesForVivas returns Left when there are no availabilities") :
+    for
+      teacherId1 <- TeacherId.from("T001")
+      teacherId2 <- TeacherId.from("T002")
+      name1 <- Name.from("Teacher1")
+      name2 <- Name.from("Teacher2")
+      resource1 = Teacher(teacherId1, name1, List())
+      resource2 = Teacher(teacherId2, name2, List())
+      role1 = Role.President(resource1)
+      role2 = Role.Advisor(resource2)
+      student <- Student.from("student")
+      title <- Title.from("Title")
+      viva <- Viva.from(student, title, List(role1, role2))
+      duration <- Duration.from("01:00")
+      result = ScheduleOperation.getAvailabilitiesForVivas(viva, List(resource1, resource2))
+    yield assert(result === Left(NoAvailableSlot()))
+
+  test("getAvailabilitiesForVivas returns Right with availabilities when there are availabilities"):
+    for
+      start <- DateTime.from("2024-04-14T09:00")
+      end <- DateTime.from("2024-04-14T12:00")
+      preference <- Preference.from(3)
+      availability = Availability(start, end, preference)
+      teacherId1 <- TeacherId.from("T001")
+      teacherId2 <- TeacherId.from("T002")
+      name1 <- Name.from("Teacher1")
+      name2 <- Name.from("Teacher2")
+      resource1 = Teacher(teacherId1, name1, List(availability))
+      resource2 = Teacher(teacherId2, name2, List(availability))
+      role1 = Role.President(resource1)
+      role2 = Role.Advisor(resource2)
+      student <- Student.from("student")
+      title <- Title.from("Title")
+      viva <- Viva.from(student, title, List(role1, role2))
+      duration <- Duration.from("01:00")
+      result = ScheduleOperation.getAvailabilitiesForVivas(viva, List(resource1, resource2))
+    yield assert(result === Right(List(List(availability, availability))))
+
+  test("scheduleVivaFromAgenda returns Right with ScheduledVivas when there are no errors") :
+    for
+      teacherId1 <- TeacherId.from("T001")
+      teacherId2 <- TeacherId.from("T002")
+      name1 <- Name.from("Teacher1")
+      name2 <- Name.from("Teacher2")
+      start <- DateTime.from("2024-04-14T09:00")
+      end <- DateTime.from("2024-04-14T12:00")
+      preference <- Preference.from(3)
+      availability = Availability(start, end, preference)
+      resource1 = Teacher(teacherId1, name1, List(availability))
+      resource2 = Teacher(teacherId2, name2, List(availability))
+
+      role1 = Role.President(resource1)
+      role2 = Role.Advisor(resource2)
+
+      student <- Student.from("student")
+      title <- Title.from("Title")
+      viva <- Viva.from(student, title, List(role1, role2))
+
+      duration <- Duration.from("01:00")
+      agenda = Agenda(duration, List(viva), List(resource1, resource2))
+
+      result = ScheduleOperation.scheduleVivaFromAgenda(agenda)
+    yield assert(result.isRight)
+
+  test("scheduleVivaFromAgenda returns Left with NoAvailableSlot when there are no available slots") :
+    for
+      teacherId1 <- TeacherId.from("T001")
+      teacherId2 <- TeacherId.from("T002")
+      name1 <- Name.from("Teacher1")
+      name2 <- Name.from("Teacher2")
+      resource1 = Teacher(teacherId1, name1, List())
+      resource2 = Teacher(teacherId2, name2, List())
+
+      role1 = Role.President(resource1)
+      role2 = Role.Advisor(resource2)
+
+      student <- Student.from("student")
+      title <- Title.from("Title")
+      viva <- Viva.from(student, title, List(role1, role2))
+
+      duration <- Duration.from("01:00")
+      agenda = Agenda(duration, List(viva), List(resource1, resource2))
+
+      result = ScheduleOperation.scheduleVivaFromAgenda(agenda)
+    yield assert(result === Left(NoAvailableSlot()))
+
+  test("scheduleVivaFromAgenda returns Left with NoAvailableSlot when all vivas have errors"):
+    for
+      teacherId1 <- TeacherId.from("T001")
+      teacherId2 <- TeacherId.from("T002")
+      name1 <- Name.from("Teacher1")
+      name2 <- Name.from("Teacher2")
+      start <- DateTime.from("2024-04-14T09:00")
+      end <- DateTime.from("2024-04-14T12:00")
+      preference <- Preference.from(3)
+      availability = Availability(start, end, preference)
+      resource1 = Teacher(teacherId1, name1, List(availability))
+      resource2 = Teacher(teacherId2, name2, List(availability))
+
+      role1 = Role.President(resource1)
+      role2 = Role.Advisor(resource2)
+
+      student <- Student.from("student")
+      title <- Title.from("Title")
+      viva1 <- Viva.from(student, title, List(role1, role2))
+      viva2 <- Viva.from(student, title, List(role1, role2))
+
+      duration <- Duration.from("05:00") // Duration longer than any availability
+      agenda = Agenda(duration, List(viva1, viva2), List(resource1, resource2))
+
+      result = ScheduleOperation.scheduleVivaFromAgenda(agenda)
+    yield assert(result === Left(NoAvailableSlot()))
+

@@ -17,14 +17,33 @@ object ScheduleOperation:
       if java.time.Duration.between(availability.start.toLocalDateTime, availability.end.toLocalDateTime).toMinutes >= duration.toMinutes
       if availabilities.forall(_.exists(other => other.start.isBefore(availability.end) && other.end.isAfter(availability.start)))
     } yield availability
-
     if (matchingSlots.isEmpty) Left(NoAvailableSlot())
     else Right(matchingSlots)
 
   def getFirstAvailability(result: Result[List[Availability]]): Result[Availability] =
-    result match {
+    result match
       case Right(availabilities) => availabilities.headOption match
         case Some(availability) => Right(availability)
         case None => Left(NoAvailableSlot())
       case Left(error) => Left(error)
+
+  def getAvailabilitiesForVivas(viva: Viva, resources: List[Resource]): Result[List[List[Availability]]] =
+    val availabilities = viva.jury.flatMap { role =>
+      resources.find(_.id == role.resource.id).toList.flatMap(_.availability)
     }
+    if (availabilities.isEmpty) Left(NoAvailableSlot())
+    else Right(List(availabilities))
+  
+  def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]] =
+    val (errors, scheduledVivas) = agenda.vivas.map { viva =>
+      for {
+        availabilities <- getAvailabilitiesForVivas(viva, agenda.resources)
+        matchingSlots = findMatchingSlots(availabilities, agenda.duration)
+        firstAvailability <- getFirstAvailability(matchingSlots)
+        preferences <- SummedPreference.from(1)
+      } yield ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, firstAvailability.end, preferences)
+    }.partitionMap(identity)
+    if (scheduledVivas.isEmpty) Left(NoAvailableSlot())
+    else Right(scheduledVivas)
+    
+    
