@@ -115,7 +115,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlots(availabilities, duration)
+      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
     yield assert(result.isLeft)
 
   test("findMatchingSlots returns the first common slot when available"):
@@ -137,7 +137,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlots(availabilities, duration)
+      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
     yield result.fold(
       _ => false,
       slot => slot.headOption.fold(false)(a => a.start == start2 && a.end == start2.plus(duration))
@@ -162,7 +162,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlots(availabilities, duration)
+      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
     yield assert(result.isLeft)
 
   test("findMatchingSlots returns the longest common slot when multiple are available"):
@@ -184,7 +184,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlots(availabilities, duration)
+      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
     yield result.fold(
       _ => false,
       slot => slot.headOption.fold(false)(a => a.start == start2 && a.end == end2)

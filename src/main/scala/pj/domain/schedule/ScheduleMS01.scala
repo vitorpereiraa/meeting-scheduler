@@ -18,9 +18,11 @@ object ScheduleMS01 extends Schedule:
     XMLtoDomain.agenda(xml) match
       case Left(error) => Right(DomainToXML.generateOutputXML(Left(error)))
       case Right(agenda) =>
+        println("agenda\n"+agenda)
         ScheduleOperation.scheduleVivaFromAgenda(agenda) match
           case Left(error) => Right(DomainToXML.generateOutputXML(Left(error)))
           case Right(scheduledVivas) =>
+            println("scheduledVivas\n"+scheduledVivas)
             PreferencesCalculation.sumPreferencesOfScheduledVivas(scheduledVivas) match
               case Left(error) => Right(DomainToXML.generateOutputXML(Left(error)))
               case Right(totalPref) =>

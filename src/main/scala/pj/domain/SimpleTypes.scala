@@ -51,6 +51,8 @@ object SimpleTypes:
 
   opaque type DateTime = LocalDateTime
   object DateTime:
+    implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_.isBefore(_))
+    
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     def from(dateTimeString: String): Result[DateTime] =
       Try(LocalDateTime.parse(dateTimeString, formatter))
@@ -63,6 +65,8 @@ object SimpleTypes:
 
     def isBetween (start: DateTime, end: DateTime, dateTime: DateTime): Boolean =
       if(dateTime.compareTo(start) >= 0 && dateTime.compareTo(end) <= 0) then true else false
+    
+    def max(date1: DateTime, date2: DateTime): DateTime = if (date1.compareTo(date2) > 0) then date1 else date2
 
   extension (d: DateTime)
     @targetName("DateTimeTo")
@@ -74,7 +78,7 @@ object SimpleTypes:
     def minus(other: Duration): DateTime = d.minusHours(other.toLocalTime.getHour).minusMinutes(other.toLocalTime.getMinute)
     def minus(other: DateTime): Duration = d.toLocalTime.minusHours(other.toLocalTime.getHour).minusMinutes(other.toLocalTime.getMinute)
     def plus(other: Duration): DateTime = d.plusHours(other.toLocalTime.getHour).plusMinutes(other.toLocalTime.getMinute)
-        
+    
   opaque type Preference = Int
   object Preference:
     private val upperLimit: Int = 5
