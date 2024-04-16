@@ -1,9 +1,9 @@
-package pj.domain.schedule
+package pj.domain
 
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
-import pj.domain.DomainError.InvalidPreference
-import pj.domain.SimpleTypes.{DateTime, Duration, Name, Preference, Student, Title}
+import pj.domain.DomainError.*
+import pj.domain.SimpleTypes.*
 
 import scala.collection.immutable.List
 
@@ -57,7 +57,6 @@ class PreferencesCalculationTest extends AnyFunSuite:
       agenda = Agenda(dur, vivas, resources)
     yield 
       val calculation = PreferencesCalculation.calculatePreferenceValuesByStudent(agenda,student1,date1, date2)
-      println(calculation)
       assert(calculation.isRight)
       assert(Right(2) === calculation)
 
@@ -99,7 +98,6 @@ class PreferencesCalculationTest extends AnyFunSuite:
       agenda = Agenda(dur, vivas, resources)
     yield
       val calculation = PreferencesCalculation.calculatePreferences(agenda, List(student1, student2), date5, date6)
-      println(calculation)
       assert(calculation.isRight)
       assert(Right(List(7,6)) === calculation)
 
@@ -137,7 +135,6 @@ class PreferencesCalculationTest extends AnyFunSuite:
       agenda = Agenda(dur, vivas, resources)
     yield
       val calculation = PreferencesCalculation.calculatePreferences(agenda, List(student1), date5, date6)
-      println(calculation)
       assert(calculation.isRight)
       assert(Right(List(6)) === calculation)
 
@@ -175,6 +172,38 @@ class PreferencesCalculationTest extends AnyFunSuite:
       agenda = Agenda(dur, vivas, resources)
     yield
       val calculation = PreferencesCalculation.calculatePreferences(agenda, List(student2), date5, date6)
-      println(calculation)
       assert(calculation.isRight)
       assert(Right(List(7)) === calculation)
+
+
+  test("calculatePreferences should return AvailabilityNotFound if there are no availabilities"):
+    for
+      startTime <- DateTime.from("2022-01-01T09:00:00")
+      endTime <- DateTime.from("2022-01-01T10:00:00")
+    yield assert(PreferencesCalculation.calculatePreferences(List.empty[Resource], startTime, endTime) == Left(AvailabilityNotFound(startTime, endTime)))
+
+
+
+  test("calculatePreferences should return the sum of preferences if there are availabilities"):
+    for
+      startTime <- DateTime.from("2022-01-01T09:00:00")
+      endTime <- DateTime.from("2022-01-01T10:30:00")
+      date1 <- DateTime.from("2022-01-01T09:00:00")
+      date2 <- DateTime.from("2022-01-01T12:00:00")
+      date3 <- DateTime.from("2022-01-02T09:00:00")
+      date4 <- DateTime.from("2022-01-02T09:30:00")
+      pref1 <- Preference.from(1)
+      pref2 <- Preference.from(2)
+      availability1 = Availability(date1, date2, pref1)
+      availability2 = Availability(date3, date4, pref2)
+      tid1 <- TeacherId.from("T001")
+      nameT1 <- Name.from("Teacher 1")
+      tid2 <- TeacherId.from("T002")
+      nameT2 <- Name.from("Teacher 2")
+      externalId <- ExternalId.from("E001")
+      externalName <- Name.from("External 1")
+      teacher1 = Teacher(tid1, nameT1, List(availability1))
+      teacher2 = Teacher(tid2, nameT2, List(availability2))
+      external2 = External(externalId, externalName, List(availability1, availability2))
+      resources = List(teacher1, teacher2, external2)
+    yield assert(PreferencesCalculation.calculatePreferences(resources, startTime, endTime) == SummedPreference.from(2))

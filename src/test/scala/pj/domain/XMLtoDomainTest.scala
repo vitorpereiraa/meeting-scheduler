@@ -1,7 +1,8 @@
-package pj.domain.schedule
+package pj.domain
+
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.language.adhocExtensions
-import org.scalatest.funsuite.AnyFunSuite
 
 class XMLtoDomainTest extends AnyFunSuite:
 

@@ -8,7 +8,7 @@ import scala.xml.*
 
 object DomainToXML:
 
-  def generateOutputXML(outputSchedule: Result[CompleteSchedule]): Elem =
+  def generateOutputXML(outputSchedule: Either[DomainError, CompleteSchedule]): Elem =
     outputSchedule match
       case Left(error) => generateErrorXML(error)
       case Right(schedule) => vivaListToXML(schedule)

@@ -1,11 +1,12 @@
-package pj.domain.schedule
+package pj.domain
 
-import scala.language.adhocExtensions
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
 import pj.domain.DomainError.NoAvailableSlot
 import pj.domain.SimpleTypes.*
 import pj.domain.schedule.ScheduleMS01
+
+import scala.language.adhocExtensions
 
 private class ScheduleOperationTest extends AnyFunSuite:
 

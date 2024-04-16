@@ -28,6 +28,26 @@ object PreferencesCalculation:
       SummedPreference.from(sum)
     else
       Left(InvalidPreference(sum.toString))
+      
+  def sumPreferencesOfScheduledVivas(scheduledVivas: List[ScheduledViva]): Result[SummedPreference] =
+    val summedPreferences = scheduledVivas.map(_.preference)
+    sumSummedPreferences(summedPreferences)
+
+  def calculatePreferences(resources: List[Resource], startTime: DateTime, endTime: DateTime): Result[SummedPreference] =
+    @tailrec
+    def loop(resources: List[Resource], acc: List[Preference]): List[Preference] = resources match
+      case Nil => acc
+      case resource :: tail =>
+        val preferences = resource.availability.filter(avail =>
+          DateTime.isBetween(avail.start, avail.end, startTime) && DateTime.isBetween(startTime, endTime, endTime)
+        ).map(_.preference)
+        loop(tail, acc ++ preferences)
+    val preferences = loop(resources, List.empty)
+    if preferences.isEmpty then
+      Left(AvailabilityNotFound(startTime, endTime))
+    else
+      sumPreferences(preferences)
+
   
   /**
    * Agenda contains the viva identification, a start datetime, an end datetime and a numeric schedule preference.
@@ -39,38 +59,33 @@ object PreferencesCalculation:
    * @return Result[Preference]
    */
   def calculatePreferenceValuesByStudent(agenda: Agenda, student: Student, startTime: DateTime, endTime: DateTime): Result[SummedPreference] =
-    println("startTime: " + startTime)
-    println("endTime: " + endTime)
     val vivas = agenda.vivas.find(_.student == student);
     if vivas.isEmpty then
       Left(StudentNotFound(student.to))
     else
-      println(vivas)
       // for each jury present in the viva, we get start time, end time of
       // the viva.resources.listOfAvailability between startTime and endTime
       val preferences = vivas.fold(List.empty[Preference]) { viva =>
         viva.jury.flatMap(jury =>
           jury.resource.availability.filter(avail =>
-            println(avail)
             DateTime.isBetween(startTime, endTime, avail.start) && DateTime.isBetween(startTime, endTime, avail.end)
           ).map(_.preference)
         )
       }
   
       if preferences.isEmpty then
-        Left(AvailabilityNotFound(student, startTime, endTime))
+        Left(AvailabilityNotFoundByStudent(student, startTime, endTime))
       else
         //sum the preferences
         SummedPreference.from(preferences.foldLeft(0)((acc, pref) => acc + pref.to))
   def calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[SummedPreference]] =
     @tailrec
-    // for each student calculate the list of summedpreferences
+    // for each student calculate the list of summed preferences
     def loop(students: List[Student], acc: List[SummedPreference]): Result[List[SummedPreference]] =
       students match
         case Nil => Right(acc)
         case student :: tail =>
           val summedPreference = PreferencesCalculation.calculatePreferenceValuesByStudent(agenda, student, startTime, endTime)
-          println(summedPreference)
           summedPreference match
             case Left(error) => Left(error)
             case Right(pref) => loop(tail, pref :: acc)

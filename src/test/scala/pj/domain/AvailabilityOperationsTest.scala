@@ -2,7 +2,7 @@ package pj.domain
 
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
-import pj.domain.SimpleTypes.{DateTime, Name, Preference, Student, SummedPreference, Title}
+import pj.domain.SimpleTypes.*
 
 class AvailabilityOperationsTest extends AnyFunSuite:
   test("Remove Interval - Overlapping Viva"):

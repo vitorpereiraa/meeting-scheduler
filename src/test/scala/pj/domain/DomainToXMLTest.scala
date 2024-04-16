@@ -1,13 +1,13 @@
-package pj.domain.schedule
+package pj.domain
 
-import scala.language.adhocExtensions
 import org.scalatest.funsuite.AnyFunSuite
+import pj.domain.DomainError.*
 import pj.domain.Role.*
-import pj.domain.*
 import pj.domain.SimpleTypes.*
-import pj.domain.{ExternalId, Role, ScheduledViva}
 import pj.xml.DomainToXML
 
+import scala.language.adhocExtensions
+import scala.xml.Utility.trim
 import scala.xml.{Elem, PrettyPrinter}
 
 class DomainToXMLTest extends AnyFunSuite:
@@ -66,5 +66,13 @@ class DomainToXMLTest extends AnyFunSuite:
       val expectedXml: String = printer.format(expected)
       assert(formattedXml != null)
       assert(formattedXml === expectedXml)
+
+  test("Generate output XML with error"):
+    val error = XMLError("Test error message")
+    val expectedXML =
+        <error xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../scheduleError.xsd"
+               message="XMLError(Test error message)"/>
+    val resultXML = DomainToXML.generateOutputXML(Left(error))
+    assert(trim(resultXML) == trim(expectedXML))
 
 
