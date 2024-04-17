@@ -53,9 +53,8 @@ object SimpleTypes:
   object DateTime:
     implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_.isBefore(_))
     
-    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
     def from(dateTimeString: String): Result[DateTime] =
-      Try(LocalDateTime.parse(dateTimeString, formatter))
+      Try(LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_LOCAL_DATE_TIME))
         .fold(
           error => Left(InvalidDateTime(dateTimeString)),
           success => Right(success)
@@ -70,7 +69,7 @@ object SimpleTypes:
 
   extension (d: DateTime)
     @targetName("DateTimeTo")
-    def to: String = d.toString
+    def to: String = d.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     def toLocalDateTime: LocalDateTime = d
     def isAfter(other: DateTime): Boolean = d.isAfter(other)
     def isBefore(other: DateTime): Boolean = d.isBefore(other) 
