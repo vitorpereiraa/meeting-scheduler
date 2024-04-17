@@ -59,7 +59,8 @@ object ScheduleOperation:
     }
     if (availabilities.isEmpty) Left(NoAvailableSlot())
     else Right(List(availabilities))
-  
+
+  /**
   def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]] =
     val (errors, scheduledVivas) = agenda.vivas.map { viva =>
       for {
@@ -67,10 +68,40 @@ object ScheduleOperation:
         matchingSlots = filterMatchingSlotsByDuration(availabilities, agenda.duration)
         firstAvailability <- getFirstAvailability(matchingSlots)
         endTime = firstAvailability.start.plus(agenda.duration)
-        updateAvailability <- AvailabilityOperations.updateAvailability(agenda.resources, firstAvailability.start, endTime)
+        //update the availabilities
+        vivaResources = agenda.resources.filter(resource => viva.jury.exists(_.resource.id == resource.id))
+        updateResult = AvailabilityOperations.updateAllAvailabilities(vivaResources, firstAvailability.start, endTime)
+        _ <- updateResult match
+          case (updatedResources, List()) => Right(updatedResources)
+          case (_, errors) => Left(errors.head)
         summedPreferences <- PreferencesCalculation.calculatePreferences(agenda.resources, firstAvailability.start, endTime)
       } yield ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, endTime, summedPreferences)
     }.partitionMap(identity)
     if (scheduledVivas.isEmpty) Left(NoAvailableSlot())
     else Right(scheduledVivas)
+  */
 
+  def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]] =
+    val initial: (List[Resource], Result[List[ScheduledViva]]) = (agenda.resources, Right(List.empty))
+    val (_, result) = agenda.vivas.foldLeft(initial) { case ((resources, acc), viva) =>
+      getAvailabilitiesForVivas(viva, resources) match
+        case Right(availabilities) =>
+          val matchingSlots = filterMatchingSlotsByDuration(availabilities, agenda.duration)
+          val firstAvailability = getFirstAvailability(matchingSlots)
+          firstAvailability match
+            case Right(availability) =>
+              val endTime = availability.start.plus(agenda.duration)
+              val vivaResources = resources.filter(resource => viva.jury.exists(_.resource.id == resource.id))
+              val updateResult = AvailabilityOperations.updateAllAvailabilities(vivaResources, availability.start, endTime)
+              updateResult match
+                case (updatedResources: List[Resource], List()) =>
+                  val summedPreferences = PreferencesCalculation.calculatePreferences(updatedResources, availability.start, endTime)
+                  val scheduledViva = for {
+                    preferences <- summedPreferences
+                  } yield ScheduledViva(viva.student, viva.title, viva.jury, availability.start, endTime, preferences)
+                  (updatedResources, acc.flatMap(accVivas => scheduledViva.map(viva => accVivas :+ viva)))
+                case (_, errors: List[DomainError]) => (resources, Left(errors.head))
+            case Left(error) => (resources, Left(error))
+        case Left(error) => (resources, Left(error))
+    }
+    result
