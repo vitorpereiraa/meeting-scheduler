@@ -16,8 +16,13 @@ object AvailabilityOperations :
           case Right(resource) => Right(resource)
           case Left(_) => updateAvailability(tail, start, end)
 
-  def updateAllAvailabilities(resources: List[Resource], start: DateTime, end: DateTime): Result[List[Resource]] =
-    val results = resources.map(updateAvailability(_, start, end))
+  def updateAllAvailabilities(resources: List[Resource], viva: Viva, start: DateTime, end: DateTime): Result[List[Resource]] =
+    val results = resources.map { resource =>
+      if (viva.jury.exists(_.resource.id == resource.id))
+        updateAvailability(resource, start, end)
+      else
+        Right(resource)
+    }
     val (lefts, rights) = results.partitionMap(identity)
     lefts.headOption match
       case Some(error) => Left(error)

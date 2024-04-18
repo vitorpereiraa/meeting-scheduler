@@ -33,16 +33,17 @@ object PreferencesCalculation:
     val summedPreferences = scheduledVivas.map(_.preference)
     sumSummedPreferences(summedPreferences)
 
-  def calculatePreferences(resources: List[Resource], startTime: DateTime, endTime: DateTime): Result[SummedPreference] =
+  def calculatePreferences(resources: List[Resource], viva: Viva, startTime: DateTime, endTime: DateTime): Result[SummedPreference] =
+    val myResources = resources.filter(resource => viva.jury.exists(_.resource.id == resource.id))
     @tailrec
-    def loop(resources: List[Resource], acc: List[Preference]): List[Preference] = resources match
+    def loop(myResources: List[Resource], acc: List[Preference]): List[Preference] = myResources match
       case Nil => acc
       case resource :: tail =>
         val preferences = resource.availability.filter(avail =>
           DateTime.isBetween(avail.start, avail.end, startTime) && DateTime.isBetween(startTime, endTime, endTime)
         ).map(_.preference)
         loop(tail, acc ++ preferences)
-    val preferences = loop(resources, List.empty)
+    val preferences = loop(myResources, List.empty)
     if preferences.isEmpty then
       Left(AvailabilityNotFound(startTime, endTime))
     else
