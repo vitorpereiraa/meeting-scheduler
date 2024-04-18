@@ -41,7 +41,6 @@ class ScheduleMS01Test extends AnyFunSuite:
         assert(resultXml === expectedXml)
         assert(Utility.trim(result) == Utility.trim(expected))
 
-
   test("Valid agenda 02"):
     for
       xml <- load("files/assessment/ms01/valid_agenda_02_in.xml")
