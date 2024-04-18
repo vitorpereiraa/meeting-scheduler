@@ -39,7 +39,7 @@ enum DomainError:
     case InvalidJury(value) => value.mkString(", ")
     case InvalidDateTime(value) => value
     case InvalidEndDateTime(value) => value
-    case InvalidPreference(value) => value
+    case InvalidPreference(value) => s"InvalidPreference($value)"
     case ResourceNotFound(value) => value.toString
     case StudentNotFound(value) => value
     case AvailabilityNotFound(startTime, endTime) => s"$startTime - $endTime"

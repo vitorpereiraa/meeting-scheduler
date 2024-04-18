@@ -45,10 +45,11 @@ class DomainToXMLTest extends AnyFunSuite:
       end           <- DateTime.from("2022-01-01T10:00:00")
       preference    <- SummedPreference.from(4)
       totalPref     <- SummedPreference.from(4)
+
+      vivaSchedule = ScheduledViva(student, title, jury, start, end, preference)
+      outputSchedule = CompleteSchedule(List(vivaSchedule), totalPref)
+      xml <- DomainToXML.generateOutputXML(Right(outputSchedule))
     yield
-      val vivaSchedule = ScheduledViva(student, title, jury, start, end, preference)
-      val outputSchedule = CompleteSchedule(List(vivaSchedule), totalPref)
-      val xml = DomainToXML.generateOutputXML(Right(outputSchedule))
       // Create a PrettyPrinter
       val printer = new PrettyPrinter(120, 4)
       // Use the PrettyPrinter to format the XML
@@ -57,7 +58,7 @@ class DomainToXMLTest extends AnyFunSuite:
       def expected: Elem =
         <schedule xsi:noNamespaceSchemaLocation="../../schedule.xsd" totalPreference="4"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <viva student="John" title="Title" start="2022-01-01T09:00" end="2022-01-01T10:00" preference="4">
+          <viva student="John" title="Title" start="2022-01-01T09:00:00" end="2022-01-01T10:00:00" preference="4">
             <president name="Teacher 1"/>
             <advisor name="Teacher 2"/>
             <supervisor name="External 1"/>
@@ -72,7 +73,9 @@ class DomainToXMLTest extends AnyFunSuite:
     val expectedXML =
         <error xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../scheduleError.xsd"
                message="XMLError(Test error message)"/>
-    val resultXML = DomainToXML.generateOutputXML(Left(error))
-    assert(trim(resultXML) == trim(expectedXML))
+    for
+      resultXML <- DomainToXML.generateOutputXML(Left(error))
+    yield
+      assert(trim(resultXML) == trim(expectedXML))
 
 
