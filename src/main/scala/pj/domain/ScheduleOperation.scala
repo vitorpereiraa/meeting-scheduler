@@ -10,98 +10,86 @@ object ScheduleOperation:
   def isAvailable(start: DateTime, end: DateTime, availabilities: List[Availability]): Boolean =
     availabilities.exists(a => !a.start.isAfter(start) && !a.end.isBefore(end))
 
-  def findMatchingSlotsReducedByTime(availabilities: List[List[Availability]], duration: Duration): Result[List[Availability]] = ???
-//    val filteredAvailabilities = filterMatchingSlotsByDuration(availabilities, duration)    
-  // para cada filteredAvailabilities quero que o start da nova availabity seja o maximo dos start possivel dentro desse periodo
-  // e o end seja o start + duration. preciso tb de guardar essa preference do start
-//    filteredAvailabilities match {
-//      case Right(availabilityLists) =>
-//        val updatedAvailabilities = availabilityLists.map { availabilityList =>
-//          val sortedList = availabilityList.sortWith(_.start.isAfter(_.start))
-//          sortedList.headOption.map { maxStartAvailability =>
-//            Availability(maxStartAvailability.start, maxStartAvailability.start.plus(duration), maxStartAvailability.preference)
-//          }
-//        }.flatten
-//        Right(updatedAvailabilities)
-//      case Left(error) => Left(error)
-//    }
-    
-  def filterMatchingSlotsByDuration(availabilities: List[List[Availability]], duration: Duration): Result[List[Availability]] =
-    // pretendo iterar sobre a lista de availabilities e devolver uma lista de availability onde o startTime + duration esteja entre startTime e endTime
+  def filterIntersectingSlots2(availabilities: List[List[Availability]], duration: Duration): Result[List[Availability]] =
+    val intersectingSlots = availabilities.flatMap { availabilityList =>
+      availabilityList
+        .filter { availability =>
+          val startTimePlusDuration = availability.start.plus(duration)
+          startTimePlusDuration.isBefore(availability.end) || startTimePlusDuration.equals(availability.end)
+        }
+    }
+
+    if (intersectingSlots.isEmpty) Left(NoAvailableSlot())
+    else Right(intersectingSlots)
+
+  def filterIntersectingSlots(availabilities: List[List[Availability]], duration: Duration): Result[List[Availability]] =
     @tailrec
-    def findMatchingSlots(availabilities: List[List[Availability]], duration: Duration, acc: List[Availability]): List[Availability] =
+    def loop(availabilities: List[List[Availability]], acc: List[Availability]): List[Availability] =
       availabilities match
         case Nil => acc
         case availability :: tail =>
-          val matchingSlots = availability.sliding(2).collect {
-            case List(start, end) if !end.start.isBefore(start.start.plus(duration)) => start
-          }.toList
-          findMatchingSlots(tail, duration, acc ++ matchingSlots)
-
-    val matchingSlots = findMatchingSlots(availabilities, duration, List.empty)
+          // Filter availabilities where the end time is after the calculated end time (start time + duration)
+          val matchingSlots = availability.filter(avail => avail.end.isAfter(avail.start.plus(duration)))
+          loop(tail, acc ++ matchingSlots)
+    val matchingSlots = loop(availabilities, List.empty)
     if (matchingSlots.isEmpty) Left(NoAvailableSlot())
     else Right(matchingSlots)
-    
-            
 
-  def getFirstAvailability(result: Result[List[Availability]]): Result[Availability] =
-    result match
-      case Right(availabilities) =>
-        val sortedAvailabilities = availabilities.sortBy(_.start).reverse
-        sortedAvailabilities.headOption match
-          case Some(availability) => Right(availability)
-          case None => Left(NoAvailableSlot())
-      case Left(error) => Left(error)
+  def getFirstAvailability(availabilities: List[Availability]): Result[Availability] =
+    val sortedAvailabilities = availabilities.sortBy(_.start)
+    sortedAvailabilities.headOption match
+      case Some(availability) => Right(availability)
+      case None => Left(NoAvailableSlot())
+
+  def findEarliestAvailableSlot(availabilities: List[Availability], duration: Duration): Result[Availability] =
+    @tailrec
+    def loop(availabilities: List[Availability], earliestSlot: Option[Availability]): Option[Availability] =
+      availabilities match
+        case Nil => earliestSlot // Se a lista estiver vazia, retorna o slot mais cedo encontrado ou None se nenhum foi encontrado
+        case availability :: tail =>
+          // Calcula o horário final do intervalo
+          val endTime = availability.start.plus(duration)
+
+          // Verifica se o intervalo de tempo cabe na disponibilidade atual
+          val isWithinAvailability = endTime.isBefore(availability.end) || endTime.equals(availability.end)
+
+          // Se o intervalo couber na disponibilidade atual e ainda não tiver sido encontrado outro slot ou esta disponibilidade começar antes do slot mais cedo encontrado, atribui esta disponibilidade como o slot mais cedo
+          if (isWithinAvailability && (earliestSlot.isEmpty || availability.start.isBefore(earliestSlot.getOrElse(availability).start)))
+            loop(tail, Some(availability))
+          else
+            loop(tail, earliestSlot)
+
+    // Inicia a recursão
+    val earliestSlotOption = loop(availabilities, None)
+
+    earliestSlotOption match
+      case Some(slot) => Right(slot)
+      case None => Left(NoAvailableSlot())
 
   def getAvailabilitiesForVivas(viva: Viva, resources: List[Resource]): Result[List[List[Availability]]] =
-    val availabilities = viva.jury.flatMap { role =>
-      resources.find(_.id == role.resource.id).toList.flatMap(_.availability)
-    }
+    val availabilities = resources.filter(resource => viva.jury.exists(_.resource.id == resource.id)).flatMap(_.availability)
     if (availabilities.isEmpty) Left(NoAvailableSlot())
     else Right(List(availabilities))
 
-  /**
   def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]] =
-    val (errors, scheduledVivas) = agenda.vivas.map { viva =>
-      for {
-        availabilities <- getAvailabilitiesForVivas(viva, agenda.resources)
-        matchingSlots = filterMatchingSlotsByDuration(availabilities, agenda.duration)
-        firstAvailability <- getFirstAvailability(matchingSlots)
-        endTime = firstAvailability.start.plus(agenda.duration)
-        //update the availabilities
-        vivaResources = agenda.resources.filter(resource => viva.jury.exists(_.resource.id == resource.id))
-        updateResult = AvailabilityOperations.updateAllAvailabilities(vivaResources, firstAvailability.start, endTime)
-        _ <- updateResult match
-          case (updatedResources, List()) => Right(updatedResources)
-          case (_, errors) => Left(errors.head)
-        summedPreferences <- PreferencesCalculation.calculatePreferences(agenda.resources, firstAvailability.start, endTime)
-      } yield ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, endTime, summedPreferences)
-    }.partitionMap(identity)
-    if (scheduledVivas.isEmpty) Left(NoAvailableSlot())
-    else Right(scheduledVivas)
-  */
+    innerScheduleVivaFromAgenda(agenda, agenda.resources).map(_.reverse)
 
-  def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]] =
-    val initial: (List[Resource], Result[List[ScheduledViva]]) = (agenda.resources, Right(List.empty))
-    val (_, result) = agenda.vivas.foldLeft(initial) { case ((resources, acc), viva) =>
-      getAvailabilitiesForVivas(viva, resources) match
-        case Right(availabilities) =>
-          val matchingSlots = filterMatchingSlotsByDuration(availabilities, agenda.duration)
-          val firstAvailability = getFirstAvailability(matchingSlots)
-          firstAvailability match
-            case Right(availability) =>
-              val endTime = availability.start.plus(agenda.duration)
-              val vivaResources = resources.filter(resource => viva.jury.exists(_.resource.id == resource.id))
-              val updateResult = AvailabilityOperations.updateAllAvailabilities(vivaResources, availability.start, endTime)
-              updateResult match
-                case (updatedResources: List[Resource], List()) =>
-                  val summedPreferences = PreferencesCalculation.calculatePreferences(updatedResources, availability.start, endTime)
-                  val scheduledViva = for {
-                    preferences <- summedPreferences
-                  } yield ScheduledViva(viva.student, viva.title, viva.jury, availability.start, endTime, preferences)
-                  (updatedResources, acc.flatMap(accVivas => scheduledViva.map(viva => accVivas :+ viva)))
-                case (_, errors: List[DomainError]) => (resources, Left(errors.head))
-            case Left(error) => (resources, Left(error))
-        case Left(error) => (resources, Left(error))
-    }
-    result
+  def innerScheduleVivaFromAgenda(agenda: Agenda, resources: List[Resource]): Result[List[ScheduledViva]] =
+    val originalResources = resources
+    def loop(vivas: List[Viva], resources: List[Resource], originalResources: List[Resource], acc: List[ScheduledViva]): Result[List[ScheduledViva]] = vivas match
+      case Nil => Right(acc)
+      case viva :: tail => scheduleVivaFromViva(viva, resources, originalResources, agenda.duration) match
+        case Left(error) => Left(error)
+        case Right((scheduledViva, updatedResources)) => loop(tail, updatedResources, originalResources, scheduledViva :: acc)
+
+    loop(agenda.vivas, resources, originalResources, List.empty)
+
+  def scheduleVivaFromViva(viva: Viva, resources: List[Resource], originalResources: List[Resource], duration: Duration): Result[(ScheduledViva, List[Resource])] =
+    for {
+      availabilities <- getAvailabilitiesForVivas(viva, resources)
+      matchingSlots <- filterIntersectingSlots(availabilities, duration)
+      firstAvailability <- findEarliestAvailableSlot(matchingSlots, duration)
+      newResources <- AvailabilityOperations.updateAllAvailabilities(resources, firstAvailability.start, firstAvailability.start.plus(duration))
+      summedPreferences <- PreferencesCalculation.calculatePreferences(originalResources, firstAvailability.start, firstAvailability.start.plus(duration))
+    } yield (ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, firstAvailability.start.plus(duration), summedPreferences),newResources)
+

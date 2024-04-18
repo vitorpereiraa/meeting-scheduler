@@ -115,7 +115,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
+      result = ScheduleOperation.filterIntersectingSlots(availabilities, duration)
     yield assert(result.isLeft)
 
   test("findMatchingSlots returns the first common slot when available"):
@@ -137,7 +137,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
+      result = ScheduleOperation.filterIntersectingSlots(availabilities, duration)
     yield result.fold(
       _ => false,
       slot => slot.headOption.fold(false)(a => a.start == start2 && a.end == start2.plus(duration))
@@ -162,7 +162,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
+      result = ScheduleOperation.filterIntersectingSlots(availabilities, duration)
     yield assert(result.isLeft)
 
   test("findMatchingSlots returns the longest common slot when multiple are available"):
@@ -184,7 +184,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
 
       duration <- Duration.from("01:00")
 
-      result = ScheduleOperation.findMatchingSlotsReducedByTime(availabilities, duration)
+      result = ScheduleOperation.filterIntersectingSlots(availabilities, duration)
     yield result.fold(
       _ => false,
       slot => slot.headOption.fold(false)(a => a.start == start2 && a.end == end2)
@@ -197,17 +197,12 @@ private class ScheduleOperationTest extends AnyFunSuite:
       preference <- Preference.from(3)
       availability = Availability(start, end, preference)
       availabilities = List[Availability](availability)
-      result = Right(availabilities)
+      result = availabilities
       firstAvailability = ScheduleOperation.getFirstAvailability(result)
     yield assert(firstAvailability === Right(availability))
 
-  test("getFirstAvailability returns Left(NoAvailableSlot()) when the result is a Left"):
-    val result: Result[List[Availability]] = Left(NoAvailableSlot())
-    val firstAvailability = ScheduleOperation.getFirstAvailability(result)
-    assert(firstAvailability === Left(NoAvailableSlot()))
-
   test("getFirstAvailability returns Left(NoAvailableSlot()) when the list of availabilities is empty"):
-    val result = Right(List.empty[Availability])
+    val result = List.empty[Availability]
     val firstAvailability = ScheduleOperation.getFirstAvailability(result)
     assert(firstAvailability === Left(NoAvailableSlot()))
 

@@ -16,17 +16,19 @@ object AvailabilityOperations :
           case Right(resource) => Right(resource)
           case Left(_) => updateAvailability(tail, start, end)
 
-  def updateAllAvailabilities(resources: List[Resource], start: DateTime, end: DateTime): (List[Resource], List[DomainError]) =
+  def updateAllAvailabilities(resources: List[Resource], start: DateTime, end: DateTime): Result[List[Resource]] =
     val results = resources.map(updateAvailability(_, start, end))
     val (lefts, rights) = results.partitionMap(identity)
-    (rights, lefts)
+    lefts.headOption match
+      case Some(error) => Left(error)
+      case None => Right(rights)
+
 
   def updateAvailability(resource: Resource, start: DateTime, end: DateTime): Result[Resource] =
     val updatedAvailability = resource.availability.flatMap(availability => removeInterval(availability, start, end))
     resource match
       case Teacher(_, _, _) => Right(Teacher(resource.id, resource.name, updatedAvailability))
       case External(_, _, _) => Right(External(resource.id, resource.name, updatedAvailability))
-      case _ => Left(ResourceInvalid(resource.id))
 
   def removeInterval(availability: Availability, start: DateTime, end: DateTime): List[Availability] =
     if (start.isEqual(availability.start) && end.isEqual(availability.end))

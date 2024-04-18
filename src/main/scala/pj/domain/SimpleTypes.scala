@@ -21,7 +21,7 @@ object SimpleTypes:
         )
   extension (d: Duration)
     @targetName("DurationTo")
-    def to: String = d.toString
+    def to: String = d.format(DateTimeFormatter.ISO_LOCAL_TIME)
     def toLocalTime: LocalTime = d
     def toMinutes: Int = d.getHour * 60 + d.getMinute
 
