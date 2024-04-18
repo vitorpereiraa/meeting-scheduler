@@ -25,4 +25,26 @@ enum DomainError:
   case ResourceInvalid(value: ResourceId)
   case NoResourcesFound()
   case NoAvailableSlot()
+
+  override def toString: String = this match 
+    case IOFileProblem(error) => error
+    case XMLError(error) => error
+    case InvalidDuration(value) => value
+    case InvalidTitle(value) => value
+    case InvalidName(value) => value
+    case InvalidStudent(value) => value
+    case InvalidResourceId(value) => value
+    case InvalidTeacherId(value) => value
+    case InvalidExternalId(value) => value
+    case InvalidJury(value) => value.mkString(", ")
+    case InvalidDateTime(value) => value
+    case InvalidEndDateTime(value) => value
+    case InvalidPreference(value) => value
+    case ResourceNotFound(value) => value.toString
+    case StudentNotFound(value) => value
+    case AvailabilityNotFound(startTime, endTime) => s"$startTime - $endTime"
+    case AvailabilityNotFoundByStudent(student, startTime, endTime) => s"$student - $startTime - $endTime"
+    case ResourceInvalid(value) => value.toString
+    case NoResourcesFound() => "No resources found"
+    case NoAvailableSlot() => "ImpossibleSchedule"
   

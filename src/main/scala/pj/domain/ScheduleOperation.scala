@@ -28,8 +28,8 @@ object ScheduleOperation:
       availabilities match
         case Nil => acc
         case availability :: tail =>
-          // Filter availabilities where the end time is after the calculated end time (start time + duration)
-          val matchingSlots = availability.filter(avail => avail.end.isAfter(avail.start.plus(duration)))
+          // Filter availabilities where the end time is equal or after the calculated end time (start time + duration)
+          val matchingSlots = availability.filter(avail => avail.end.isAfter(avail.start.plus(duration)) || avail.end.isEqual(avail.start.plus(duration)))
           loop(tail, acc ++ matchingSlots)
     val matchingSlots = loop(availabilities, List.empty)
     if (matchingSlots.isEmpty) Left(NoAvailableSlot())
@@ -86,10 +86,10 @@ object ScheduleOperation:
   def scheduleVivaFromViva(viva: Viva, resources: List[Resource], originalResources: List[Resource], duration: Duration): Result[(ScheduledViva, List[Resource])] =
     val vivaResources = resources.filter(resource => viva.jury.exists(_.resource.id == resource.id))
     for {
-      availabilities <- getAvailabilitiesForVivas(viva, resources)
+      availabilities <- getAvailabilitiesForVivas(viva, vivaResources)
       matchingSlots <- filterIntersectingSlots(availabilities, duration)
       firstAvailability <- findEarliestAvailableSlot(matchingSlots, vivaResources, duration)
-      newResources <- AvailabilityOperations.updateAllAvailabilities(resources, viva, firstAvailability.start, firstAvailability.start.plus(duration))
+      newResources <- AvailabilityOperations.updateAllAvailabilities(vivaResources, viva, firstAvailability.start, firstAvailability.start.plus(duration))
       summedPreferences <- PreferencesCalculation.calculatePreferences(originalResources, viva, firstAvailability.start, firstAvailability.start.plus(duration))
     } yield (ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, firstAvailability.start.plus(duration), summedPreferences),newResources)
 
