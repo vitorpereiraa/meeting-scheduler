@@ -6,7 +6,7 @@ import pj.domain.DomainError.*
 import pj.domain.SimpleTypes.*
 
 import scala.collection.immutable.List
-/**
+
 class PreferencesCalculationTest extends AnyFunSuite:
   test("Sum preferences - OK"):
     for
@@ -180,9 +180,10 @@ class PreferencesCalculationTest extends AnyFunSuite:
     for
       startTime <- DateTime.from("2022-01-01T09:00:00")
       endTime <- DateTime.from("2022-01-01T10:00:00")
-    yield assert(PreferencesCalculation.calculatePreferences(List.empty[Resource], Nil, startTime, endTime) == Left(AvailabilityNotFound(startTime, endTime)))
-
-
+      student <- Student.from("Student 001")
+      title <- Title.from("Title")
+      viva <- Viva.from(student, title, List())
+    yield assert(PreferencesCalculation.calculatePreferences(List.empty[Resource], viva, startTime, endTime) == Left(AvailabilityNotFound(startTime, endTime)))
 
   test("calculatePreferences should return the sum of preferences if there are availabilities"):
     for
@@ -206,6 +207,8 @@ class PreferencesCalculationTest extends AnyFunSuite:
       teacher2 = Teacher(tid2, nameT2, List(availability2))
       external2 = External(externalId, externalName, List(availability1, availability2))
       resources = List(teacher1, teacher2, external2)
-    yield assert(PreferencesCalculation.calculatePreferences(resources, Nil, startTime, endTime) == SummedPreference.from(2))
-
-*/
+      student <- Student.from("Student 001")
+      title <- Title.from("Title")
+      jury = List(Role.President(teacher1), Role.Advisor(teacher2), Role.Supervisor(external2))
+      viva <- Viva.from(student, title, jury)
+    yield assert(PreferencesCalculation.calculatePreferences(resources, viva, startTime, endTime) == SummedPreference.from(2))

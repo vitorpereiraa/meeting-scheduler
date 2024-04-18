@@ -28,7 +28,6 @@ object AvailabilityOperations :
       case Some(error) => Left(error)
       case None => Right(rights)
 
-
   def updateAvailability(resource: Resource, start: DateTime, end: DateTime): Result[Resource] =
     val updatedAvailability = resource.availability.flatMap(availability => removeInterval(availability, start, end))
     resource match

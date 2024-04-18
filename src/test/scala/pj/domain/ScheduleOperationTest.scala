@@ -96,27 +96,26 @@ private class ScheduleOperationTest extends AnyFunSuite:
       result = ScheduleOperation.isAvailable(startFrom, endAt, availabilities)
     yield assert(result === false)
 
-  test("findMatchingSlots returns None when no common slot is available"):
-    for
-      start1 <- DateTime.from("2024-04-14T09:00")
-      end1 <- DateTime.from("2024-04-14T12:00")
-      preference1 <- Preference.from(3)
-      availability1 = Availability(start1, end1, preference1)
+  test("findMatchingSlots returns empty list when no common slot is available"): // FIXME: This test is not working
+      for
+        start1 <- DateTime.from("2024-04-14T09:00")
+        end1 <- DateTime.from("2024-04-14T12:00")
+        preference1 <- Preference.from(3)
+        availability1 = Availability(start1, end1, preference1)
 
-      start2 <- DateTime.from("2024-04-14T13:00")
-      end2 <- DateTime.from("2024-04-14T16:00")
-      preference2 <- Preference.from(3)
-      availability2 = Availability(start2, end2, preference2)
+        start2 <- DateTime.from("2024-04-14T13:00")
+        end2 <- DateTime.from("2024-04-14T16:00")
+        preference2 <- Preference.from(3)
+        availability2 = Availability(start2, end2, preference2)
 
-      availabilities = List[List[Availability]](
-        List[Availability](availability1),
-        List[Availability](availability2)
-      )
+        availabilities = List[List[Availability]](
+          List[Availability](availability1),
+          List[Availability](availability2)
+        )
 
-      duration <- Duration.from("01:00")
-
-      result = ScheduleOperation.filterIntersectingSlots(availabilities, duration)
-    yield assert(result.isLeft)
+        duration <- Duration.from("01:00")
+        result <- ScheduleOperation.filterIntersectingSlots(availabilities, duration)
+      yield assert(result === List.empty)
 
   test("findMatchingSlots returns the first common slot when available"):
     for

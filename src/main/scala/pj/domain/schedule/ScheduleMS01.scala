@@ -15,13 +15,8 @@ object ScheduleMS01 extends Schedule:
   //       Use the xml.XML code to handle the xml elements
   //       Refer to https://github.com/scala/scala-xml/wiki/XML-Processing for xml creation
   def create(xml: Elem): Result[Elem] =
-    XMLtoDomain.agenda(xml) match
-      case Left(error) => DomainToXML.generateOutputXML(Left(error))
-      case Right(agenda) =>
-        ScheduleOperation.scheduleVivaFromAgenda(agenda) match
-          case Left(error) => DomainToXML.generateOutputXML(Left(error))
-          case Right(scheduledVivas) =>
-            PreferencesCalculation.sumPreferencesOfScheduledVivas(scheduledVivas) match
-              case Left(error) => DomainToXML.generateOutputXML(Left(error))
-              case Right(totalPref) =>
-                DomainToXML.generateOutputXML(Right(CompleteSchedule(scheduledVivas, totalPref)))
+    for
+      agenda <- XMLtoDomain.agenda(xml)
+      scheduledVivas <- ScheduleOperation.scheduleVivaFromAgenda(agenda)
+      totalPref <- PreferencesCalculation.sumPreferencesOfScheduledVivas(scheduledVivas)      
+    yield DomainToXML.generateOutputXML(CompleteSchedule(scheduledVivas, totalPref))
