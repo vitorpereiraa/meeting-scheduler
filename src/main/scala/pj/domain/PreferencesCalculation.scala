@@ -65,7 +65,7 @@ object PreferencesCalculation:
       val preferences = vivas.fold(List.empty[Preference]) { viva =>
         viva.jury.flatMap(jury =>
           jury.resource.availability.filter(avail =>
-            DateTime.isBetween(startTime, endTime, avail.start) && DateTime.isBetween(startTime, endTime, avail.end)
+            avail.start.isBetween(startTime, endTime) && avail.end.isBetween(startTime, endTime)
           ).map(_.preference)
         )
       }
