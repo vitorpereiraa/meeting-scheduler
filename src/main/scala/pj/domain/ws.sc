@@ -1,11 +1,12 @@
-import pj.domain.{PreferencesCalculation, ScheduleOperation}
+import pj.domain.preference.PreferencesService
+import pj.domain.scheduleviva.ScheduleVivaService
 import pj.io.FileIO
 import pj.xml.XMLtoDomain
 
 for
     xml            <- FileIO.load("C:\\Users\\caba\\Personal\\mei\\tap\\tap-m1a-1060503-1170541-1180511-1191244\\files\\assessment\\ms01\\valid_agenda_27_in.xml")
     agenda         <- XMLtoDomain.agenda(xml)
-    scheduledVivas <- ScheduleOperation.scheduleVivaFromAgenda(agenda)
+    scheduledVivas <- ScheduleVivaService.scheduleVivaFromAgenda(agenda)
 //    totalPref      <- PreferencesCalculation.sumPreferencesOfScheduledVivas(scheduledVivas)
 //    completeSchedule = CompleteSchedule(scheduledVivas, totalPreference)
 //    output           = DomainToXML.generateOutputXML(completeSchedule)

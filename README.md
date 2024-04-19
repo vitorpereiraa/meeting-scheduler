@@ -247,6 +247,34 @@ This method takes an `Agenda` object, a list of `Student` objects, and a start a
 
 ## Tests
 
+The project includes a comprehensive suite of tests to ensure the correctness and reliability of the scheduling system. The tests cover various scenarios and edge cases to validate the behavior of the scheduling algorithms and functions. The tests are organized into different categories based on the functionality they test.
+
+### Domain Tests
+
+The domain tests validate the core domain entities and operations, such as viva, role, resource, and availability. They ensure that the domain model is correctly implemented and that the entities behave as expected.
+
+1. **Viva Tests**: These tests would validate the creation and manipulation of viva instances. This could involve creating viva objects with different attributes, updating viva attributes, and verifying that the viva objects are correctly constructed.
+
+2. **Role Tests**: These tests would validate the creation and manipulation of role instances. This could involve creating role objects with different attributes, updating role attributes, and verifying that the role objects are correctly constructed.
+
+3. **Resource Tests**: These tests would validate the creation and manipulation of resource instances. This could involve creating resource objects with different attributes, updating resource attributes, and verifying that the resource objects are correctly constructed.
+
+4. **Availability Tests**: These tests would validate the creation and manipulation of availability instances. This could involve creating availability objects with different attributes, updating availability attributes, and verifying that the availability objects are correctly constructed.
+
+5. **Scheduled Viva Tests**: These tests would validate the creation and manipulation of scheduled viva instances. This could involve creating scheduled viva objects with different attributes, updating scheduled viva attributes, and verifying that the scheduled viva objects are correctly constructed.
+
+6. **Complete Schedule Tests**: These tests would validate the creation and manipulation of complete schedule instances. This could involve creating complete schedule objects with different attributes, updating complete schedule attributes, and verifying that the complete schedule objects are correctly constructed.
+
+
+### Operations Tests
+
+The operations tests validate the scheduling operations, such as scheduling a viva, updating resource availabilities, and calculating preferences. They test the scheduling algorithms and functions to ensure that they allocate time slots correctly and handle various constraints and restrictions.
+
+1. **Scheduling a Viva**: These tests would validate that the system can correctly schedule a viva. This could involve creating a viva with specific resources and availabilities, running the scheduling operation, and then verifying that the viva has been scheduled at the correct time with the correct resources.  
+
+2. **Updating Resource Availabilities**: These tests would check that the system can correctly update the availability of resources. This could involve creating a resource with a specific availability, running the update operation with a new availability, and then verifying that the resource's availability has been updated correctly.  
+
+3. **Calculating Preferences**: These tests would validate that the system can correctly calculate preferences for scheduling a viva. This could involve creating a viva with specific resources and preferences, running the preference calculation operation, and then verifying that the calculated preferences match the expected values.
 
 
 ## Future Improvements
