@@ -63,7 +63,12 @@ In our project, Allen's Interval Algebra was a crucial tool for solving the chal
 #### intersectable
 
 ```scala
-def intersectable(a: Availability, b: Availability, duration: Duration): Boolean
+def intersectable(a: Availability, b: Availability, duration: Duration): Boolean =
+    overlaps(a,b)    || overlaps(b, a)  ||
+    finishedBy(a, b) || finishedBy(b,a) ||
+    contains(a, b)   || contains(b, a)  ||
+    starts(a, b)     || starts(b, a)    ||
+    equals(a, b)
 ```
 
 This method takes two `Availability` objects and a `Duration`. It checks if the two availabilities intersect and if the intersection is long enough to accommodate the given duration. It returns `true` if they do, `false` otherwise.
