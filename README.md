@@ -327,6 +327,20 @@ By running the tests in `AssessmentTestMS01` we can verify that they all pass, a
 
 ![Assessment](diagrams/assessmentTests.png)
 
+
+### Execution
+
+To execute all tests, run the following command in sbt shell:
+
+```bash
+sbt compile
+sbt test
+```
+
+After execution, the test results were:
+
+![Tests](diagrams/testExecution.png)
+
 ## Future Improvements
 
 Here are some potential improvements and next steps for the project:
