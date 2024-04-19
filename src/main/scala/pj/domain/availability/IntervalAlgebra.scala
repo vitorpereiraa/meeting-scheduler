@@ -26,21 +26,9 @@ object IntervalAlgebra:
   def equals(a: Availability, b: Availability): Boolean =
     a.start.isEqual(b.start) && a.end.isEqual(b.end)
 
-  def durationOfIntersectionIsEqualOrMoreThanDuration(a: Availability, b: Availability, duration: Duration): Boolean =
-    val intersection = Duration.fromBetween(a.start.max(b.start), a.end.min(b.end))
-    intersection match
-      case Right(i) => !i.isBefore(duration)
-      case Left(l) => false
-
-  def intersectable(a: Availability, b: Availability, duration: Duration): Boolean =
-    (overlaps(a,b)    || overlaps(b, a)  ||
+  def intersectable(a: Availability, b: Availability): Boolean =
+      overlaps(a,b)    || overlaps(b, a)  ||
       finishedBy(a, b) || finishedBy(b,a) ||
       contains(a, b)   || contains(b, a)  ||
       starts(a, b)     || starts(b, a)    ||
-      equals(a, b))
-      && durationOfIntersectionIsEqualOrMoreThanDuration(a,b, duration)
-
-  def intersection(a: Availability, b: Availability, duration: Duration): Availability =
-    val start = a.start.max(b.start)
-    val end   = a.end.min(b.end)
-    Availability(start, end, a.preference)
+      equals(a, b)

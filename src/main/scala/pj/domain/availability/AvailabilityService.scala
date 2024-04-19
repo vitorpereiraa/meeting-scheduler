@@ -49,10 +49,21 @@ object AvailabilityService :
     else
       List(availability)
 
+  def durationOfIntersectionIsEqualOrMoreThanDuration(a: Availability, b: Availability, duration: Duration): Boolean =
+    val intersection = Duration.fromBetween(a.start.max(b.start), a.end.min(b.end))
+    intersection match
+      case Right(i) => !i.isBefore(duration)
+      case Left(l) => false
+
+  def intersection(a: Availability, b: Availability, duration: Duration): Availability =
+    val start = a.start.max(b.start)
+    val end   = a.end.min(b.end)
+    Availability(start, end, a.preference)
+
   def intersectAvailabilityWithList(availability: Availability, list: List[Availability], duration: Duration): Option[Availability] =
     list
-      .find(a1 => IntervalAlgebra.intersectable(availability, a1, duration))
-      .map(a1 => IntervalAlgebra.intersection(availability, a1, duration))
+      .find(a1 => IntervalAlgebra.intersectable(availability, a1) && durationOfIntersectionIsEqualOrMoreThanDuration(availability, a1, duration))
+      .map(a1 => intersection(availability, a1, duration))
 
   def intersectList(a: List[Availability], b: List[Availability], duration: Duration): List[Availability] =
     a.flatMap(a1 => intersectAvailabilityWithList(a1, b, duration))
