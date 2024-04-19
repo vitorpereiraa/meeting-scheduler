@@ -4,10 +4,11 @@ import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
 import pj.domain.DomainError.*
 import pj.domain.SimpleTypes.*
+import pj.domain.preference.PreferencesService
 
 import scala.collection.immutable.List
 
-class PreferencesCalculationTest extends AnyFunSuite:
+class PreferencesServiceTest extends AnyFunSuite:
   test("Sum preferences - OK"):
     for
       p1 <- Preference.from(1)
@@ -15,11 +16,11 @@ class PreferencesCalculationTest extends AnyFunSuite:
       p3 <- Preference.from(3)
       p4 <- Preference.from(4)
       p5 <- Preference.from(5)
-      sum <- PreferencesCalculation.sumPreferences(List(p1, p2, p3, p4, p5))
+      sum <- PreferencesService.sumPreferences(List(p1, p2, p3, p4, p5))
     yield assert(sum.to == 15)
 
   test("Sum preferences - Invalid Preference"):
-    val sum = PreferencesCalculation.sumPreferences(List())
+    val sum = PreferencesService.sumPreferences(List())
     assert(Left(InvalidPreference("0")) === sum)
 
   test("Calculate Preference Values By Student - OK"):
@@ -56,7 +57,7 @@ class PreferencesCalculationTest extends AnyFunSuite:
       resources = List(teacher1, teacher2, external1)
       agenda = Agenda(dur, vivas, resources)
     yield 
-      val calculation = PreferencesCalculation.calculatePreferenceValuesByStudent(agenda,student1,date1, date2)
+      val calculation = PreferencesService.calculatePreferenceValuesByStudent(agenda,student1,date1, date2)
       assert(calculation.isRight)
       assert(Right(2) === calculation)
 
@@ -97,7 +98,7 @@ class PreferencesCalculationTest extends AnyFunSuite:
       resources = List(teacher1, teacher2, external1, external2)
       agenda = Agenda(dur, vivas, resources)
     yield
-      val calculation = PreferencesCalculation.calculatePreferences(agenda, List(student1, student2), date5, date6)
+      val calculation = PreferencesService.calculatePreferences(agenda, List(student1, student2), date5, date6)
       assert(calculation.isRight)
       assert(Right(List(7,6)) === calculation)
 
@@ -134,7 +135,7 @@ class PreferencesCalculationTest extends AnyFunSuite:
       resources = List(teacher1, teacher2, external1)
       agenda = Agenda(dur, vivas, resources)
     yield
-      val calculation = PreferencesCalculation.calculatePreferences(agenda, List(student1), date5, date6)
+      val calculation = PreferencesService.calculatePreferences(agenda, List(student1), date5, date6)
       assert(calculation.isRight)
       assert(Right(List(6)) === calculation)
 
@@ -171,7 +172,7 @@ class PreferencesCalculationTest extends AnyFunSuite:
       resources = List(teacher1, teacher2, external2)
       agenda = Agenda(dur, vivas, resources)
     yield
-      val calculation = PreferencesCalculation.calculatePreferences(agenda, List(student2), date5, date6)
+      val calculation = PreferencesService.calculatePreferences(agenda, List(student2), date5, date6)
       assert(calculation.isRight)
       assert(Right(List(7)) === calculation)
 

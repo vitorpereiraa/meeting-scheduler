@@ -5,14 +5,15 @@ import pj.domain.*
 import pj.domain.DomainError.NoAvailableSlot
 import pj.domain.SimpleTypes.*
 import pj.domain.schedule.ScheduleMS01
+import pj.domain.scheduleviva.ScheduleVivaService
 
 import scala.language.adhocExtensions
 
-private class ScheduleOperationTest extends AnyFunSuite:
+private class ScheduleVivaServiceTest extends AnyFunSuite:
 
   test("getFirstAvailability returns Left when the availabilities list is empty"):
     val availabilities = List[Availability]()
-    val result = ScheduleOperation.getFirstAvailability(availabilities)
+    val result = ScheduleVivaService.getFirstAvailability(availabilities)
     assert(result === Left(NoAvailableSlot()))
 
   test("getFirstAvailability returns the only availability when the availabilities list contains one availability"):
@@ -22,7 +23,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       preference <- Preference.from(3)
       availability = Availability(start, end, preference)
       availabilities = List[Availability](availability)
-      result = ScheduleOperation.getFirstAvailability(availabilities)
+      result = ScheduleVivaService.getFirstAvailability(availabilities)
     yield assert(result === Right(availability))
 
   test("getFirstAvailability returns the first availability when the availabilities list contains multiple availabilities"):
@@ -38,7 +39,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       availability2 = Availability(start2, end2, preference2)
 
       availabilities = List[Availability](availability2, availability1) // availability1 is earlier
-      result = ScheduleOperation.getFirstAvailability(availabilities)
+      result = ScheduleVivaService.getFirstAvailability(availabilities)
     yield assert(result === Right(availability1))
 
   test("getAvailabilitiesForVivas returns Left when the resources list is empty"):
@@ -53,7 +54,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       viva <- Viva.from(student, title, jury)
       resources = List[Resource]()
       duration <- Duration.from("01:00") // Duration in minutes
-      result = ScheduleOperation.getAvailabilitiesForVivas(viva, resources, duration)
+      result = ScheduleVivaService.getAvailabilitiesForVivas(viva, resources, duration)
     yield assert(result === Left(NoAvailableSlot()))
 
   test("getAvailabilitiesForVivas returns the only availability when the resources list contains one resource"):
@@ -68,7 +69,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       viva <- Viva.from(student, title, jury)
       resources = List[Resource](resource1)
       duration <- Duration.from("01:00") // Duration in minutes
-      result = ScheduleOperation.getAvailabilitiesForVivas(viva, resources, duration)
+      result = ScheduleVivaService.getAvailabilitiesForVivas(viva, resources, duration)
     yield assert(result === Right(List(resource1)))
 
   test("getAvailabilitiesForVivas returns the first availability when the resources list contains multiple resources"):
@@ -86,7 +87,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       viva <- Viva.from(student, title, jury)
       resources = List[Resource](resource1, resource2)
       duration <- Duration.from("01:00") // Duration in minutes
-      result = ScheduleOperation.getAvailabilitiesForVivas(viva, resources, duration)
+      result = ScheduleVivaService.getAvailabilitiesForVivas(viva, resources, duration)
     yield assert(result === Right(List(resource1)))
 
   test("scheduleVivaFromViva returns ScheduledViva when viva has a matching resource"):
@@ -102,7 +103,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       resources = List[Resource](resource)
       originalResources = List[Resource](resource)
       duration <- Duration.from("01:00") // Duration in minutes
-      result <- ScheduleOperation.scheduleVivaFromViva(viva, resources, originalResources, duration)
+      result <- ScheduleVivaService.scheduleVivaFromViva(viva, resources, originalResources, duration)
     yield Right(List(resource))
 
   test("scheduleVivaFromViva returns error when viva does not have a matching resource") :
@@ -121,7 +122,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       resources = List[Resource](resource2) // resource2 does not match any jury member
       originalResources = List[Resource](resource2)
       duration <- Duration.from("01:00") // Duration in minutes
-      result <- ScheduleOperation.scheduleVivaFromViva(viva, resources, originalResources, duration)
+      result <- ScheduleVivaService.scheduleVivaFromViva(viva, resources, originalResources, duration)
     yield assert(result === Left(NoAvailableSlot()))
 
   test("scheduleVivaFromViva returns error when resources list is empty") :
@@ -137,7 +138,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       resources = List[Resource]() // Empty resources list
       originalResources = List[Resource]() // Empty originalResources list
       duration <- Duration.from("01:00") // Duration in minutes
-      result <- ScheduleOperation.scheduleVivaFromViva(viva, resources, originalResources, duration)
+      result <- ScheduleVivaService.scheduleVivaFromViva(viva, resources, originalResources, duration)
     yield assert(result === Left(NoAvailableSlot()))
 
   test("scheduleVivaFromViva returns error when viva is null") :
@@ -153,7 +154,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       originalResources = List[Resource](resource)
       duration <- Duration.from("01:00") // Duration in minutes
       viva <- Viva.from(student, title, jury) // Null viva
-      result <- ScheduleOperation.scheduleVivaFromViva(viva, resources, originalResources, duration)
+      result <- ScheduleVivaService.scheduleVivaFromViva(viva, resources, originalResources, duration)
     yield assert(result === Left(NoAvailableSlot()))
 
   test("scheduleVivaFromViva returns error when duration is zero") :
@@ -169,7 +170,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       resources = List[Resource](resource)
       originalResources = List[Resource](resource)
       duration <- Duration.from("00:00") // Duration is zero
-      result <- ScheduleOperation.scheduleVivaFromViva(viva, resources, originalResources, duration)
+      result <- ScheduleVivaService.scheduleVivaFromViva(viva, resources, originalResources, duration)
     yield Right(List(resource))
 
   test("scheduleVivaFromViva returns error when duration is negative") :
@@ -185,7 +186,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       resources = List[Resource](resource)
       originalResources = List[Resource](resource)
       duration <- Duration.from("-01:00") // Negative duration
-      result <- ScheduleOperation.scheduleVivaFromViva(viva, resources, originalResources, duration)
+      result <- ScheduleVivaService.scheduleVivaFromViva(viva, resources, originalResources, duration)
     yield (assert(result === Left(NoAvailableSlot())))
 
   test("innerScheduleVivaFromAgenda returns success with empty list when agenda has no vivas"):
@@ -193,7 +194,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       duration <- Duration.from("01:00")
       agenda = Agenda(duration, List[Viva](), List[Resource]())
       resources = List[Resource]()
-      result = ScheduleOperation.innerScheduleVivaFromAgenda(agenda, resources)
+      result = ScheduleVivaService.innerScheduleVivaFromAgenda(agenda, resources)
     yield assert(result.isRight && result.getOrElse(List()).isEmpty)
 
   test("innerScheduleVivaFromAgenda returns error when scheduleVivaFromViva returns an error"):
@@ -213,7 +214,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       originalResources = List[Resource](resource2)
       duration <- Duration.from("01:00")
       agenda = Agenda(duration, List(viva), resources)
-      result <- ScheduleOperation.innerScheduleVivaFromAgenda(agenda, resources)
+      result <- ScheduleVivaService.innerScheduleVivaFromAgenda(agenda, resources)
     yield (assert(result === Left(NoAvailableSlot())))
 
   test("innerScheduleVivaFromAgenda returns success when scheduleVivaFromViva returns a successful result") :
@@ -230,14 +231,14 @@ private class ScheduleOperationTest extends AnyFunSuite:
       originalResources = List[Resource](resource)
       duration <- Duration.from("01:00")
       agenda = Agenda(duration, List[Viva](viva), List[Resource](resource))
-      result <- ScheduleOperation.innerScheduleVivaFromAgenda(agenda, resources)
+      result <- ScheduleVivaService.innerScheduleVivaFromAgenda(agenda, resources)
     yield Right(List(resource))
 
   test("scheduleVivaFromAgenda returns success with empty list when agenda has no vivas"):
     for
       duration <- Duration.from("01:00")
       agenda = Agenda(duration, List[Viva](), List[Resource]())
-      result = ScheduleOperation.scheduleVivaFromAgenda(agenda)
+      result = ScheduleVivaService.scheduleVivaFromAgenda(agenda)
     yield assert(result.isRight && result.getOrElse(List()).isEmpty)
 
   test("scheduleVivaFromAgenda returns error when innerScheduleVivaFromAgenda returns an error"):
@@ -257,7 +258,7 @@ private class ScheduleOperationTest extends AnyFunSuite:
       originalResources = List[Resource](resource2)
       duration <- Duration.from("01:00")
       agenda = Agenda(duration, List(viva), resources)
-      result <- ScheduleOperation.scheduleVivaFromAgenda(agenda)
+      result <- ScheduleVivaService.scheduleVivaFromAgenda(agenda)
     yield (assert(result === Left(NoAvailableSlot())))
 
   test("scheduleVivaFromAgenda returns success when innerScheduleVivaFromAgenda returns a successful result") :
@@ -274,5 +275,5 @@ private class ScheduleOperationTest extends AnyFunSuite:
       originalResources = List[Resource](resource)
       duration <- Duration.from("01:00")
       agenda = Agenda(duration, List[Viva](viva), List[Resource](resource))
-      result <- ScheduleOperation.scheduleVivaFromAgenda(agenda)
+      result <- ScheduleVivaService.scheduleVivaFromAgenda(agenda)
     yield Right(List(resource))

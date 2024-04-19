@@ -1,12 +1,13 @@
-package pj.domain
+package pj.domain.preference
 
-import pj.domain.AvailabilityOperations.{contains, intersectable}
+import pj.domain.availability.IntervalAlgebra.*
 import pj.domain.DomainError.*
-import pj.domain.SimpleTypes.{DateTime, Duration, Preference, Student, SummedPreference}
+import pj.domain.SimpleTypes.*
+import pj.domain.*
 
 import scala.annotation.tailrec
 
-object PreferencesCalculation:
+object PreferencesService:
   
   /**
    * This is a simple domain logic that sums up a list of preferences.
@@ -83,7 +84,7 @@ object PreferencesCalculation:
       students match
         case Nil => Right(acc)
         case student :: tail =>
-          val summedPreference = PreferencesCalculation.calculatePreferenceValuesByStudent(agenda, student, startTime, endTime)
+          val summedPreference = PreferencesService.calculatePreferenceValuesByStudent(agenda, student, startTime, endTime)
           summedPreference match
             case Left(error) => Left(error)
             case Right(pref) => loop(tail, pref :: acc)

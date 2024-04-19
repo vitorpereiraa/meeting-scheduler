@@ -1,12 +1,14 @@
-package pj.domain
+package pj.domain.scheduleviva
 
 import pj.domain.*
 import pj.domain.DomainError.{NoAvailableSlot, StudentNotFound}
-import pj.domain.SimpleTypes.{DateTime, Duration, Preference, Student, SummedPreference}
+import pj.domain.SimpleTypes.*
+import pj.domain.availability.AvailabilityService
+import pj.domain.preference.PreferencesService
 
 import scala.annotation.tailrec
 
-object ScheduleOperation:
+object ScheduleVivaService:
 
   def getFirstAvailability(availabilities: List[Availability]): Result[Availability] =
     val sortedAvailabilities = availabilities.sortBy(_.start)
@@ -31,10 +33,10 @@ object ScheduleOperation:
   def scheduleVivaFromViva(viva: Viva, resources: List[Resource], originalResources: List[Resource], duration: Duration): Result[(ScheduledViva, List[Resource])] =
     for {
       availabilities    <- getAvailabilitiesForVivas(viva, resources, duration)
-      intersection      = AvailabilityOperations.intersectAll(availabilities, duration)
+      intersection      = AvailabilityService.intersectAll(availabilities, duration)
       firstAvailability <- getFirstAvailability(intersection)
-      newResources      <- AvailabilityOperations.updateAllAvailabilities(resources, viva, firstAvailability.start, firstAvailability.start.plus(duration))
-      summedPreferences <- PreferencesCalculation.calculatePreferences(originalResources, viva, firstAvailability, duration)
+      newResources      <- AvailabilityService.updateAllAvailabilities(resources, viva, firstAvailability.start, firstAvailability.start.plus(duration))
+      summedPreferences <- PreferencesService.calculatePreferences(originalResources, viva, firstAvailability, duration)
     } yield (ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, firstAvailability.start.plus(duration), summedPreferences), newResources)
 
   def innerScheduleVivaFromAgenda(agenda: Agenda, resources: List[Resource]): Result[List[ScheduledViva]] =
