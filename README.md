@@ -53,79 +53,14 @@ This log lists the architectural decisions for MS01.
 
 During the project, we encountered several challenges that required careful consideration and problem-solving. Here are some of the key challenges and their corresponding solutions:
 
-### 1. Scheduling a Viva
-One of the challenges we faced was determining the intersection of availabilities for scheduling dissertation defenses. This involved finding common time slots where all required resources were available. We addressed this challenge by implementing an algorithm that checks the availability of each resource and identifies the overlapping time slots.
+### 1. Allen's Interval Algebra
+Allen's Interval Algebra is a mathematical framework used to reason about and manipulate intervals of time. It provides a set of rules and operations that allow us to perform various operations on intervals, such as determining their intersection, checking if one interval is contained within another, and more.
 
-The `ScheduleOperation` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
+In our project, Allen's Interval Algebra was a crucial tool for solving the challenge of determining the intersection of availabilities for scheduling dissertation defenses. By applying the principles of Allen's Interval Algebra, we were able to identify common time slots where all required resources were available. This helped us streamline the scheduling process and ensure that all necessary resources were allocated efficiently.
 
-#### getFirstAvailability
+By leveraging Allen's Interval Algebra, we were able to automate the scheduling process and consider various constraints and restrictions, such as the availability of jury members and the duration of each defense session. This optimization of time slot allocation minimized conflicts and improved the overall efficiency and effectiveness of scheduling dissertation defenses.
 
-```scala
-def getFirstAvailability(availabilities: List[Availability]): Result[Availability]
-```
-
-This method takes a list of `Availability` objects and returns the first availability in the list. The availabilities are sorted by their start time. If there are no availabilities, it returns a `Left` with `NoAvailableSlot`.
-
-#### getAvailabilitiesForVivas
-
-```scala
-def getAvailabilitiesForVivas(viva: Viva, resources: List[Resource], duration: Duration): Result[List[List[Availability]]]
-```
-
-This method takes a `Viva` object, a list of `Resource` objects, and a `Duration`. It filters the resources that match the jury members of the viva and retrieves their availabilities. It then filters these availabilities to only include those that are long enough to accommodate the viva's duration. If there are no matching availabilities, it returns a `Left` with `NoAvailableSlot`.
-
-#### scheduleVivaFromViva
-
-```scala
-def scheduleVivaFromViva(viva: Viva, resources: List[Resource], originalResources: List[Resource], duration: Duration): Result[(ScheduledViva, List[Resource])]
-```
-
-This method takes a `Viva` object, a list of `Resource` objects, another list of original `Resource` objects, and a `Duration`. It attempts to schedule the viva by finding a suitable availability slot among the resources. If successful, it returns a `Right` with a tuple containing the scheduled viva and the updated list of resources. If unsuccessful, it returns a `Left` with an error.
-
-#### innerScheduleVivaFromAgenda
-
-```scala
-def innerScheduleVivaFromAgenda(agenda: Agenda, resources: List[Resource]): Result[List[ScheduledViva]]
-```
-
-This method takes an `Agenda` object and a list of `Resource` objects. It attempts to schedule all the vivas in the agenda by calling `scheduleVivaFromViva` for each viva. If all vivas are successfully scheduled, it returns a `Right` with a list of scheduled vivas. If any viva cannot be scheduled, it returns a `Left` with an error.
-
-#### scheduleVivaFromAgenda
-
-```scala
-def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]]
-```
-
-This method takes an `Agenda` object. It calls `innerScheduleVivaFromAgenda` to schedule all the vivas in the agenda. The scheduled vivas are then sorted by their start time. If all vivas are successfully scheduled, it returns a `Right` with the sorted list of scheduled vivas. If any viva cannot be scheduled, it returns a `Left` with an error.
-
-### 2. Updating Resources
-Updating the availability of resources posed a challenge, as it required ensuring data consistency and avoiding conflicts with already scheduled defenses. We addressed this challenge by implementing a mechanism that checks for conflicts when updating resource availabilities and adjusts the schedule accordingly.
-
-The `AvailabilityOperations` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
-
-#### updateAvailability
-
-```scala
-def updateAvailability(resources: List[Resource], start: DateTime, end: DateTime): Result[Resource]
-```
-
-This method takes a list of `Resource` objects and a start and end `DateTime`. It updates the availability of the resources that have an availability slot that matches the given start and end time. If no such resource is found, it returns a `Left` with `NoResourcesFound`.
-
-#### updateAllAvailabilities
-
-```scala
-def updateAllAvailabilities(resources: List[Resource], viva: Viva, start: DateTime, end: DateTime): Result[List[Resource]]
-```
-
-This method takes a list of `Resource` objects, a `Viva` object, and a start and end `DateTime`. It updates the availability of all resources that are part of the viva's jury and have an availability slot that matches the given start and end time. If any resource cannot be updated, it returns a `Left` with an error.
-
-#### updateAvailability
-
-```scala
-def updateAvailability(resource: Resource, start: DateTime, end: DateTime): Result[Resource]
-```
-
-This method takes a `Resource` object and a start and end `DateTime`. It updates the availability of the resource by removing the interval between the start and end time from the resource's availability. It returns the updated resource.
+Overall, Allen's Interval Algebra played a significant role in the success of our project, enabling us to create a robust and efficient scheduling system for MSC dissertation defenses.
 
 #### removeInterval
 
@@ -183,7 +118,81 @@ def intersectAll(a: List[List[Availability]], duration: Duration): List[Availabi
 
 This method takes a list of lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list of each sublist that intersect with any availability in the second list of each sublist and where the intersection is long enough to accommodate the given duration.
 
-### 3. Calculating Preferences
+### 2. Scheduling a Viva
+One of the challenges we faced was determining the intersection of availabilities for scheduling dissertation defenses. This involved finding common time slots where all required resources were available. We addressed this challenge by implementing an algorithm that checks the availability of each resource and identifies the overlapping time slots.
+
+The `ScheduleOperation` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
+
+#### getFirstAvailability
+
+```scala
+def getFirstAvailability(availabilities: List[Availability]): Result[Availability]
+```
+
+This method takes a list of `Availability` objects and returns the first availability in the list. The availabilities are sorted by their start time. If there are no availabilities, it returns a `Left` with `NoAvailableSlot`.
+
+#### getAvailabilitiesForVivas
+
+```scala
+def getAvailabilitiesForVivas(viva: Viva, resources: List[Resource], duration: Duration): Result[List[List[Availability]]]
+```
+
+This method takes a `Viva` object, a list of `Resource` objects, and a `Duration`. It filters the resources that match the jury members of the viva and retrieves their availabilities. It then filters these availabilities to only include those that are long enough to accommodate the viva's duration. If there are no matching availabilities, it returns a `Left` with `NoAvailableSlot`.
+
+#### scheduleVivaFromViva
+
+```scala
+def scheduleVivaFromViva(viva: Viva, resources: List[Resource], originalResources: List[Resource], duration: Duration): Result[(ScheduledViva, List[Resource])]
+```
+
+This method takes a `Viva` object, a list of `Resource` objects, another list of original `Resource` objects, and a `Duration`. It attempts to schedule the viva by finding a suitable availability slot among the resources. If successful, it returns a `Right` with a tuple containing the scheduled viva and the updated list of resources. If unsuccessful, it returns a `Left` with an error.
+
+#### innerScheduleVivaFromAgenda
+
+```scala
+def innerScheduleVivaFromAgenda(agenda: Agenda, resources: List[Resource]): Result[List[ScheduledViva]]
+```
+
+This method takes an `Agenda` object and a list of `Resource` objects. It attempts to schedule all the vivas in the agenda by calling `scheduleVivaFromViva` for each viva. If all vivas are successfully scheduled, it returns a `Right` with a list of scheduled vivas. If any viva cannot be scheduled, it returns a `Left` with an error.
+
+#### scheduleVivaFromAgenda
+
+```scala
+def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]]
+```
+
+This method takes an `Agenda` object. It calls `innerScheduleVivaFromAgenda` to schedule all the vivas in the agenda. The scheduled vivas are then sorted by their start time. If all vivas are successfully scheduled, it returns a `Right` with the sorted list of scheduled vivas. If any viva cannot be scheduled, it returns a `Left` with an error.
+
+### 3. Updating Resources
+Updating the availability of resources posed a challenge, as it required ensuring data consistency and avoiding conflicts with already scheduled defenses. We addressed this challenge by implementing a mechanism that checks for conflicts when updating resource availabilities and adjusts the schedule accordingly.
+
+The `AvailabilityOperations` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
+
+#### updateAvailability
+
+```scala
+def updateAvailability(resources: List[Resource], start: DateTime, end: DateTime): Result[Resource]
+```
+
+This method takes a list of `Resource` objects and a start and end `DateTime`. It updates the availability of the resources that have an availability slot that matches the given start and end time. If no such resource is found, it returns a `Left` with `NoResourcesFound`.
+
+#### updateAllAvailabilities
+
+```scala
+def updateAllAvailabilities(resources: List[Resource], viva: Viva, start: DateTime, end: DateTime): Result[List[Resource]]
+```
+
+This method takes a list of `Resource` objects, a `Viva` object, and a start and end `DateTime`. It updates the availability of all resources that are part of the viva's jury and have an availability slot that matches the given start and end time. If any resource cannot be updated, it returns a `Left` with an error.
+
+#### updateAvailability
+
+```scala
+def updateAvailability(resource: Resource, start: DateTime, end: DateTime): Result[Resource]
+```
+
+This method takes a `Resource` object and a start and end `DateTime`. It updates the availability of the resource by removing the interval between the start and end time from the resource's availability. It returns the updated resource.
+
+### 4. Calculating Preferences
 Calculating preferences for dissertation defenses was another challenge we encountered. We needed to consider the preferences of both the jury members and the students when scheduling the vivas. To address this challenge, we implemented a function that takes a `Viva` object and a list of `Resource` objects as input and returns a list of `Preference` objects.
 
 The `PreferencesCalculation` object in the `pj.domain` package contains several methods related to calculating preferences for scheduling a viva. Here's a brief explanation of each method:
