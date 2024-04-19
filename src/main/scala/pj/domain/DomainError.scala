@@ -27,8 +27,8 @@ enum DomainError:
   case NoAvailableSlot()
 
   override def toString: String = this match 
-    case IOFileProblem(error) => error
-    case XMLError(error) => error
+    case IOFileProblem(error) => s"IOFileProblem($error)"
+    case XMLError(error) => s"XMLError($error)"
     case InvalidDuration(value) => value
     case InvalidTitle(value) => value
     case InvalidName(value) => value

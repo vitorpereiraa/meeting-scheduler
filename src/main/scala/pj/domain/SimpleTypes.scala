@@ -19,17 +19,26 @@ object SimpleTypes:
           error => Left(InvalidDuration(value)),
           success => Right(success)
         )
-    def between(start: LocalTime, end: LocalTime): Duration =
+
+    def from(hour: Int, minute: Int): Result[Duration] =
+      Try(LocalTime.of(hour, minute))
+        .fold(
+          error => Left(InvalidDuration(hour.toString + minute.toString)),
+          success => Right(success)
+        )
+
+    def between(start: DateTime, end: DateTime): Result[Duration] =
       val startMinutes = start.getHour * 60 + start.getMinute
       val endMinutes = end.getHour * 60 + end.getMinute
       val durationMinutes = endMinutes - startMinutes
-      LocalTime.of(durationMinutes / 60, durationMinutes % 60)
-      
+      from(durationMinutes / 60, durationMinutes % 60)
+
   extension (d: Duration)
     @targetName("DurationTo")
     def to: String = d.format(DateTimeFormatter.ISO_LOCAL_TIME)
     def toLocalTime: LocalTime = d
     def toMinutes: Int = d.getHour * 60 + d.getMinute
+    def isBefore(other: Duration): Boolean = d.isBefore(other)
 
   opaque type Title = String
   object Title:
@@ -54,6 +63,7 @@ object SimpleTypes:
   extension (s: Student)
     @targetName("StudentTo")
     def to: String = s
+    def compareTo(other: Student): Int = s.compareTo(other)
 
   opaque type DateTime = LocalDateTime
   object DateTime:
@@ -80,6 +90,8 @@ object SimpleTypes:
     def isAfter(other: DateTime): Boolean = d.isAfter(other)
     def isBefore(other: DateTime): Boolean = d.isBefore(other) 
     def isEqual(other: DateTime): Boolean = d.isEqual(other)
+    def max(other: DateTime): DateTime = if d.isAfter(other) then d else other
+    def min(other: DateTime): DateTime = if d.isBefore(other) then d else other
     def minus(other: Duration): DateTime =
       val totalMinutes = other.toLocalTime.getHour * 60 + other.toLocalTime.getMinute
       d.minusMinutes(totalMinutes)

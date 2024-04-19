@@ -69,17 +69,21 @@ object XMLtoDomain:
 
   private def roles(resources: List[Resource])(xml: Node): Result[List[Role]] =
     for
-      president  <- traverse(xml \ "president", role(resources)(Role.President.apply))
-      advisor    <- traverse(xml \ "advisor", role(resources)(Role.Advisor.apply))
-      coAdvisor  <- traverse(xml \ "coadvisor", role(resources)(Role.CoAdvisor.apply))
-      supervisor <- traverse(xml \ "supervisor", role(resources)(Role.Supervisor.apply))
+      presidentList <- traverse(xml \ "president", role(resources)(Role.President.apply))
+      president <- presidentList match
+        case Nil => Left(XMLError("Node president is empty/undefined in viva"))
+        case _   => Right(presidentList)
+      advisorList <- traverse(xml \ "advisor", role(resources)(Role.Advisor.apply))
+      advisor     <- advisorList match
+        case Nil => Left(XMLError("Node advisor is empty/undefined in viva"))
+        case _   => Right(advisorList)
+      coAdvisor      <- traverse(xml \ "coadvisor", role(resources)(Role.CoAdvisor.apply))
+      supervisor     <- traverse(xml \ "supervisor", role(resources)(Role.Supervisor.apply))
     yield president ::: advisor ::: coAdvisor ::: supervisor
 
   private def role(resources: List[Resource])(role: Resource => Role)(xml: Node): Result[Role] =
     for
       resourceIdStr <- fromAttribute(xml, "id")
-      resourceId <- TeacherId.from(resourceIdStr)
-        .orElse(ExternalId.from(resourceIdStr))
-        .orElse(Left(InvalidResourceId(resourceIdStr)))
-      resource <- findResourceById(resources)(resourceId)
+      resourceId    <- ResourceId.from(resourceIdStr)
+      resource      <- findResourceById(resources)(resourceId)
     yield role(resource)

@@ -28,6 +28,11 @@ enum Role(val resource: Resource):
 
 sealed trait ResourceId:
   def value: String
+object ResourceId:
+  def from(value: String): Result[ResourceId] = 
+    TeacherId.from(value)
+      .orElse(ExternalId.from(value))
+      .orElse(Left(InvalidResourceId(value)))
 
 final case class TeacherId private(value: String) extends ResourceId
 object TeacherId:
@@ -57,7 +62,6 @@ final case class External(id: ResourceId, name: Name, availability: List[Availab
 final case class Availability(start: DateTime, end: DateTime, preference: Preference)
 
 final case class ScheduledViva(student: Student, title: Title, jury: List[Role], start: DateTime, end: DateTime, preference: SummedPreference)
-
 object ScheduledViva:
   def from(student: Student, title: Title, jury: List[Role], start: DateTime, end: DateTime, preference: SummedPreference) =
     for
