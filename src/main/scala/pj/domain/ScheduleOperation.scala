@@ -34,19 +34,19 @@ object ScheduleOperation:
       intersection      = AvailabilityOperations.intersectAll(availabilities, duration)
       firstAvailability <- getFirstAvailability(intersection)
       newResources      <- AvailabilityOperations.updateAllAvailabilities(resources, viva, firstAvailability.start, firstAvailability.start.plus(duration))
-      summedPreferences <- PreferencesCalculation.calculatePreferences(originalResources, viva, firstAvailability.start, firstAvailability.start.plus(duration))
+      summedPreferences <- PreferencesCalculation.calculatePreferences(originalResources, viva, firstAvailability, duration)
     } yield (ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, firstAvailability.start.plus(duration), summedPreferences), newResources)
 
   def innerScheduleVivaFromAgenda(agenda: Agenda, resources: List[Resource]): Result[List[ScheduledViva]] =
     val originalResources = resources
+    @tailrec
     def loop(vivas: List[Viva], resources: List[Resource], originalResources: List[Resource], acc: List[ScheduledViva]): Result[List[ScheduledViva]] = vivas match
       case Nil => Right(acc)
       case viva :: tail => scheduleVivaFromViva(viva, resources, originalResources, agenda.duration) match
         case Left(error) => Left(error)
         case Right((scheduledViva, updatedResources)) => loop(tail, updatedResources, originalResources, scheduledViva :: acc)
-
     loop(agenda.vivas, resources, originalResources, List.empty)
 
   def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]] =
     innerScheduleVivaFromAgenda(agenda, agenda.resources)
-      .map(_.sortWith((a,b) => a.start.isBefore(b.start)))
+      .map(_.sortWith((a, b) => if !a.start.isEqual(b.start) then a.start.isBefore(b.start) else a.student.compareTo(b.student) < 0))

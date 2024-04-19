@@ -1,7 +1,8 @@
 package pj.domain
 
+import pj.domain.AvailabilityOperations.{contains, intersectable}
 import pj.domain.DomainError.*
-import pj.domain.SimpleTypes.{DateTime, Preference, Student, SummedPreference}
+import pj.domain.SimpleTypes.{DateTime, Duration, Preference, Student, SummedPreference}
 
 import scala.annotation.tailrec
 
@@ -17,35 +18,30 @@ object PreferencesCalculation:
    */
   def sumPreferences(list: List[Preference]): Result[SummedPreference] =
     val sum = list.foldLeft(0)((acc, pref) => acc + pref.to)
-    if sum >= 1 then
-      SummedPreference.from(sum)
-    else
-      Left(InvalidPreference(sum.toString))
+    SummedPreference.from(sum)
 
   def sumSummedPreferences(list: List[SummedPreference]): Result[SummedPreference] =
     val sum = list.foldLeft(0)((acc, pref) => acc + pref.to)
-    if sum >= 1 then
-      SummedPreference.from(sum)
-    else
-      Left(InvalidPreference(sum.toString))
-      
+    SummedPreference.from(sum)
+
   def sumPreferencesOfScheduledVivas(scheduledVivas: List[ScheduledViva]): Result[SummedPreference] =
     val summedPreferences = scheduledVivas.map(_.preference)
     sumSummedPreferences(summedPreferences)
 
-  def calculatePreferences(resources: List[Resource], viva: Viva, startTime: DateTime, endTime: DateTime): Result[SummedPreference] =
+  def calculatePreferences(resources: List[Resource], viva: Viva, a: Availability, duration: Duration): Result[SummedPreference] =
     val myResources = resources.filter(resource => viva.jury.exists(_.resource.id == resource.id))
     @tailrec
     def loop(myResources: List[Resource], acc: List[Preference]): List[Preference] = myResources match
       case Nil => acc
       case resource :: tail =>
-        val preferences = resource.availability.filter(avail =>
-          DateTime.isBetween(avail.start, avail.end, startTime) && DateTime.isBetween(startTime, endTime, endTime)
-        ).map(_.preference)
+        val preferences = resource.availability
+          .filter(a1 => intersectable(a, a1, duration))
+          .map(_.preference)
         loop(tail, acc ++ preferences)
+
     val preferences = loop(myResources, List.empty)
     if preferences.isEmpty then
-      Left(AvailabilityNotFound(startTime, endTime))
+      Left(AvailabilityNotFound(a))
     else
       sumPreferences(preferences)
 
@@ -79,6 +75,7 @@ object PreferencesCalculation:
       else
         //sum the preferences
         SummedPreference.from(preferences.foldLeft(0)((acc, pref) => acc + pref.to))
+
   def calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[SummedPreference]] =
     @tailrec
     // for each student calculate the list of summed preferences
