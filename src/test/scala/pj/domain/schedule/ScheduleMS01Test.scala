@@ -12,7 +12,7 @@ class ScheduleMS01Test extends AnyFunSuite, ScheduleMS01Behaviours:
 
   test("Simple 01"):
     for
-      xml <- load("files/test/ms01/simple01.xml")
+      xml <- load("files/test/ms01/simple01_in.xml")
       result <- ScheduleMS01.create(xml)
       expected <- load("files/test/ms01/simple01_out.xml")
     yield
@@ -71,6 +71,36 @@ class ScheduleMS01Test extends AnyFunSuite, ScheduleMS01Behaviours:
       xml <- load("files/test/ms01/simple03_in.xml")
       result <- ScheduleMS01.create(xml)
       expected <- load("files/test/ms01/simple03_outError.xml")
+    yield
+      // Create a PrettyPrinter
+      val printer = new PrettyPrinter(120, 4)
+      // Use the PrettyPrinter to format the XML
+      val resultXml: String = printer.format(result)
+      val expectedXml: String = printer.format(expected)
+      assert(resultXml === expectedXml)
+      assert(Utility.trim(result) == Utility.trim(expected))
+
+
+
+  test("Simple 04"):
+    for
+      xml <- load("files/test/ms01/simple04_in.xml")
+      result <- ScheduleMS01.create(xml)
+      expected <- load("files/test/ms01/simple04_outError.xml")
+    yield
+      // Create a PrettyPrinter
+      val printer = new PrettyPrinter(120, 4)
+      // Use the PrettyPrinter to format the XML
+      val resultXml: String = printer.format(result)
+      val expectedXml: String = printer.format(expected)
+      assert(resultXml === expectedXml)
+      assert(Utility.trim(result) == Utility.trim(expected))
+
+  test("Simple 05"):
+    for
+      xml <- load("files/test/ms01/simple05_in.xml")
+      result <- ScheduleMS01.create(xml)
+      expected <- load("files/test/ms01/simple05_out.xml")
     yield
       // Create a PrettyPrinter
       val printer = new PrettyPrinter(120, 4)
