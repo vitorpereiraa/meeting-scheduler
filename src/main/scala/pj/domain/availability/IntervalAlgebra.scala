@@ -1,7 +1,6 @@
 package pj.domain.availability
 
 import pj.domain.Availability
-import pj.domain.SimpleTypes.Duration
 
 // Allen's Interval Algebra
 object IntervalAlgebra:

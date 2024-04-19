@@ -21,7 +21,7 @@ object XMLtoDomain:
       vivas         <- traverse(vivasNode \ "viva", viva(resources))
     yield Agenda(duration, vivas, resources)
 
-  private def resources(xml: Node): Result[List[Resource]] =
+  def resources(xml: Node): Result[List[Resource]] =
     for
       teachersNode  <- fromNode(xml, "teachers")
       teachers      <- traverse(teachersNode \ "teacher", teacher)
@@ -29,7 +29,7 @@ object XMLtoDomain:
       externals     <- traverse(externalsNode \ "external", external)
     yield teachers ::: externals
 
-  private def teacher(xml: Node): Result[Teacher] =
+  def teacher(xml: Node): Result[Teacher] =
     for
       teacherIdStr   <- fromAttribute(xml, "id")
       teacherId      <- TeacherId.from(teacherIdStr)
@@ -38,7 +38,7 @@ object XMLtoDomain:
       availability   <- traverse(xml \ "availability", availability)
     yield Teacher(teacherId, teacherName, availability)
 
-  private def external(xml: Node): Result[External] =
+  def external(xml: Node): Result[External] =
     for
       externalIdStr   <- fromAttribute(xml, "id")
       externalId      <- ExternalId.from(externalIdStr)
@@ -47,7 +47,7 @@ object XMLtoDomain:
       availability    <- traverse(xml \ "availability", availability)
     yield External(externalId, externalName, availability)
 
-  private def availability(xml: Node): Result[Availability] =
+  def availability(xml: Node): Result[Availability] =
     for
       startStr      <- fromAttribute(xml, "start")
       start         <- DateTime.from(startStr)
@@ -57,7 +57,7 @@ object XMLtoDomain:
       preference    <- Preference.from(preferenceStr)
     yield Availability(start, end, preference)
 
-  private def viva(resources: List[Resource])(xml: Node): Result[Viva] =
+  def viva(resources: List[Resource])(xml: Node): Result[Viva] =
     for
       studentStr <- fromAttribute(xml, "student")
       student    <- Student.from(studentStr)
