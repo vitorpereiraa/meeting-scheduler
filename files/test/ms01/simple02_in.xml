@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agenda xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../agenda.xsd"
+        duration="01:00:00">
+    <vivas>
+        <viva student="Student 003" title="Title 3">
+            <president id="T005"/>
+            <advisor id="T006"/>
+            <supervisor id="E003"/>
+        </viva>
+    </vivas>
+    <resources>
+        <teachers>
+            <teacher id="T005" name="Teacher 005">
+                <availability start="2024-06-02T08:00:00" end="2024-06-02T11:00:00" preference="4"/>
+                <availability start="2024-06-02T12:00:00" end="2024-06-02T15:00:00" preference="2"/>
+            </teacher>
+            <teacher id="T006" name="Teacher 006">
+                <availability start="2024-06-02T09:00:00" end="2024-06-02T12:00:00" preference="4"/>
+                <availability start="2024-06-02T13:00:00" end="2024-06-02T16:00:00" preference="4"/>
+            </teacher>
+        </teachers>
+        <externals>
+            <external id="E003" name="External 003">
+                <availability start="2024-06-02T08:30:00" end="2024-06-02T11:30:00" preference="3"/>
+                <availability start="2024-06-02T12:30:00" end="2024-06-02T15:30:00" preference="4"/>
+            </external>
+        </externals>
+    </resources>
+</agenda>
