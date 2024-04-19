@@ -9,9 +9,6 @@ class Viva
 Viva : student : Student
 Viva : title : Title
 Viva : jury : List[Role]
-Viva : start : DateTime
-Viva : end : DateTime
-Viva : preference : SummedPreference
 
 enum Role 
 Role : President
@@ -24,7 +21,7 @@ Resource : id : ResourceId
 Resource : name : Name
 Resource : availability : List[Availability]
 
-class ResourceId
+interface ResourceId
 ResourceId : value : String
 
 class TeacherId extends ResourceId

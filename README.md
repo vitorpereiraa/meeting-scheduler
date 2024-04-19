@@ -3,7 +3,7 @@
 ## Project Overview
 The project involves the scheduling of MsC dissertation defenses, also known as viva. The objective of the project is to create a scheduling system that can efficiently allocate time slots for viva based on various constraints and restrictions.
 
-The significance of this project lies in its ability to streamline the scheduling process for MsC dissertation defenses. By automating the scheduling process, it can save time and effort for the entities involved, such as the students, examiners, and other stakeholders. It can also help ensure that viva are scheduled at the most favorable times, taking into account the availability and preferences of the participants. Additionally, by considering the scheduling restrictions and the potential overlap of entities across different viva, the system can optimize the allocation of time slots and minimize conflicts.
+The significance of this project lies in its ability to streamline the scheduling process for MsC dissertation defenses. By automating the scheduling process, it can save time and effort for the entities involved, such as the students, teachers and externals. It can also help ensure that viva are scheduled at the most favorable times, taking into account the availability and preferences of the participants. Additionally, by considering the scheduling restrictions and the potential overlap of entities across different viva, the system can optimize the allocation of time slots and minimize conflicts.
 
 Overall, the project aims to improve the efficiency and effectiveness of scheduling MsC dissertation defenses, making the process smoother and more convenient for all parties involved.
 
@@ -237,6 +237,7 @@ def calculatePreferences(agenda: Agenda, students: List[Student], startTime: Dat
 This method takes an `Agenda` object, a list of `Student` objects, and a start and end `DateTime`. It calculates the sum of the preferences of all vivas in the agenda that each student is part of and that have a start and end time that overlaps with the given start and end time. It does this by looping over the students, calling `calculatePreferenceValuesByStudent` for each student, and then aggregating the results into a list of summed preferences.
 
 ## Tests
+
 
 
 ## Future Improvements
