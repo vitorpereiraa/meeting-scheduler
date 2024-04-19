@@ -3,8 +3,9 @@ package pj.domain
 import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
 import pj.domain.SimpleTypes.*
+import pj.domain.availability.AvailabilityService
 
-class AvailabilityOperationsTest extends AnyFunSuite:
+class AvailabilityServiceTest extends AnyFunSuite:
   test("Remove Interval - Overlapping Viva"):
     for
       start <- DateTime.from("2024-04-14T09:00")
@@ -17,7 +18,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Alice")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
+      result = AvailabilityService.removeInterval(availability, vivaStart, vivaEnd)
       expected = List(
         Availability(start, vivaStart, preference),
         Availability(vivaEnd, end, preference)
@@ -36,7 +37,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Bob")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
+      result = AvailabilityService.removeInterval(availability, vivaStart, vivaEnd)
     yield assert(result == List(availability))
 
   test("Remove Interval - All Viva"):
@@ -51,7 +52,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Alice")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
+      result = AvailabilityService.removeInterval(availability, vivaStart, vivaEnd)
       expected = List()
     yield assert(result == expected)
 
@@ -67,7 +68,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Bob")
       title <- Title.from("Thesis")
       scheduledViva = ScheduledViva(student, title, List(), vivaStart, vivaEnd, sumPreference)
-      result = AvailabilityOperations.removeInterval(availability, vivaStart, vivaEnd)
+      result = AvailabilityService.removeInterval(availability, vivaStart, vivaEnd)
       expected = List(
         Availability(start, vivaStart, preference)
       )
@@ -82,7 +83,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       resourceId <- ResourceId.from("1")
       name <- Name.from("Alice")
       resource = Teacher(resourceId, name, List(availability))
-      result = AvailabilityOperations.updateAvailability(resource, start, end)
+      result = AvailabilityService.updateAvailability(resource, start, end)
       expected = Right(Teacher(resourceId, name, List()))
     yield assert(result == expected)
 
@@ -98,7 +99,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       name2 <- Name.from("Bob")
       resource1 = Teacher(resourceId1, name1, List(availability))
       resource2 = External(resourceId2, name2, List(availability))
-      result = AvailabilityOperations.updateAvailability(List(resource1, resource2), start, end)
+      result = AvailabilityService.updateAvailability(List(resource1, resource2), start, end)
       expected = Right(resource2)
     yield assert(result == expected)
 
@@ -118,7 +119,7 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       student <- Student.from("Alice")
       title <- Title.from("Thesis")
       viva <- Viva.from(student, title, List(role1))
-      result = AvailabilityOperations.updateAllAvailabilities(List(resource1, resource2), viva, start, end)
+      result = AvailabilityService.updateAllAvailabilities(List(resource1, resource2), viva, start, end)
       expected = Right(List(Teacher(resourceId1, name1, List()), resource2))
     yield assert(result == expected)
 
