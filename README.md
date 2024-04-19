@@ -56,11 +56,9 @@ During the project, we encountered several challenges that required careful cons
 ### 1. Allen's Interval Algebra
 Allen's Interval Algebra is a mathematical framework used to reason about and manipulate intervals of time. It provides a set of rules and operations that allow us to perform various operations on intervals, such as determining their intersection, checking if one interval is contained within another, and more.
 
+![Allen's thirteen basic relations](diagrams/allenIntervalAlgebra.png)
+
 In our project, Allen's Interval Algebra was a crucial tool for solving the challenge of determining the intersection of availabilities for scheduling dissertation defenses. By applying the principles of Allen's Interval Algebra, we were able to identify common time slots where all required resources were available. This helped us streamline the scheduling process and ensure that all necessary resources were allocated efficiently.
-
-By leveraging Allen's Interval Algebra, we were able to automate the scheduling process and consider various constraints and restrictions, such as the availability of jury members and the duration of each defense session. This optimization of time slot allocation minimized conflicts and improved the overall efficiency and effectiveness of scheduling dissertation defenses.
-
-Overall, Allen's Interval Algebra played a significant role in the success of our project, enabling us to create a robust and efficient scheduling system for MSC dissertation defenses.
 
 #### removeInterval
 
@@ -70,6 +68,8 @@ def removeInterval(availability: Availability, start: DateTime, end: DateTime): 
 
 This method takes an `Availability` object and a start and end `DateTime`. It removes the interval between the start and end time from the availability. It returns the updated availability.
 
+This method could be associated with the "during" relation, as it involves removing an interval that is during the availability interval.
+
 #### durationOfIntersectionIsEqualOrMoreThanDuration
 
 ```scala
@@ -77,6 +77,8 @@ def durationOfIntersectionIsEqualOrMoreThanDuration(a: Availability, b: Availabi
 ```
 
 This method takes two `Availability` objects and a `Duration`. It checks if the intersection of the two availabilities is equal to or longer than the given duration. It returns `true` if it is, `false` otherwise.
+
+This method could be associated with the "meets" and "met by" relations, as it involves checking if the end of one interval is the same as the start of the next, and if the intersection of two intervals is equal to or longer than a given duration.
 
 #### intersectable
 
@@ -86,6 +88,8 @@ def intersectable(a: Availability, b: Availability, duration: Duration): Boolean
 
 This method takes two `Availability` objects and a `Duration`. It checks if the two availabilities intersect and if the intersection is long enough to accommodate the given duration. It returns `true` if they do, `false` otherwise.
 
+This method could be associated with the "overlaps" and "overlapped by" relations, as it involves checking if one interval starts before and finishes after the start of another interval.
+
 #### intersection
 
 ```scala
@@ -93,6 +97,8 @@ def intersection(a: Availability, b: Availability, duration: Duration): Availabi
 ```
 
 This method takes two `Availability` objects and a `Duration`. It returns the intersection of the two availabilities if they intersect and the intersection is long enough to accommodate the given duration.
+
+This method could be associated with the "equals" relation, as it involves finding the intersection of two intervals, which would be the same as the original intervals if they are equal.
 
 #### intersectAvailabilityWithList
 
@@ -102,6 +108,8 @@ def intersectAvailabilityWithList(availability: Availability, list: List[Availab
 
 This method takes an `Availability` object, a list of `Availability` objects, and a `Duration`. It checks if the given availability intersects with any availability in the list and if the intersection is long enough to accommodate the given duration. If it does, it returns the intersection. If it doesn't, it returns `None`.
 
+This method could be associated with the "contains" relation, as it involves checking if an availability interval contains any of the intervals in a list.
+
 #### intersectList
 
 ```scala
@@ -110,6 +118,8 @@ def intersectList(a: List[Availability], b: List[Availability], duration: Durati
 
 This method takes two lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list that intersect with any availability in the second list and where the intersection is long enough to accommodate the given duration.
 
+This method could be associated with the "starts" and "started by" relations, as it involves checking if the start of an interval in the first list is the same as the start of an interval in the second list.
+
 #### intersectAll
 
 ```scala
@@ -117,6 +127,8 @@ def intersectAll(a: List[List[Availability]], duration: Duration): List[Availabi
 ```
 
 This method takes a list of lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list of each sublist that intersect with any availability in the second list of each sublist and where the intersection is long enough to accommodate the given duration.
+
+This method could be associated with the "finishes" and "finished by" relations, as it involves checking if the end of an interval in the first list is the same as the end of an interval in the second list.
 
 ### 2. Scheduling a Viva
 One of the challenges we faced was determining the intersection of availabilities for scheduling dissertation defenses. This involved finding common time slots where all required resources were available. We addressed this challenge by implementing an algorithm that checks the availability of each resource and identifies the overlapping time slots.
