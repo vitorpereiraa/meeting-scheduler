@@ -73,3 +73,53 @@ class AvailabilityOperationsTest extends AnyFunSuite:
       )
     yield assert(result == expected)
 
+  test("Update Availability - Single Resource"):
+    for
+      start <- DateTime.from("2024-04-14T09:00")
+      end <- DateTime.from("2024-04-14T12:00")
+      preference <- Preference.from(3)
+      availability = Availability(start, end, preference)
+      resourceId <- ResourceId.from("1")
+      name <- Name.from("Alice")
+      resource = Teacher(resourceId, name, List(availability))
+      result = AvailabilityOperations.updateAvailability(resource, start, end)
+      expected = Right(Teacher(resourceId, name, List()))
+    yield assert(result == expected)
+
+  test("Update Availability - Multiple Resources"):
+    for
+      start <- DateTime.from("2024-04-14T09:00")
+      end <- DateTime.from("2024-04-14T12:00")
+      preference <- Preference.from(3)
+      availability = Availability(start, end, preference)
+      resourceId1 <- ResourceId.from("1")
+      resourceId2 <- ResourceId.from("2")
+      name1 <- Name.from("Alice")
+      name2 <- Name.from("Bob")
+      resource1 = Teacher(resourceId1, name1, List(availability))
+      resource2 = External(resourceId2, name2, List(availability))
+      result = AvailabilityOperations.updateAvailability(List(resource1, resource2), start, end)
+      expected = Right(resource2)
+    yield assert(result == expected)
+
+  test("Update All Availabilities"):
+    for
+      start <- DateTime.from("2024-04-14T09:00")
+      end <- DateTime.from("2024-04-14T12:00")
+      preference <- Preference.from(3)
+      availability = Availability(start, end, preference)
+      resourceId1 <- ResourceId.from("1")
+      resourceId2 <- ResourceId.from("2")
+      name1 <- Name.from("Alice")
+      name2 <- Name.from("Bob")
+      resource1 = Teacher(resourceId1, name1, List(availability))
+      resource2 = External(resourceId2, name2, List(availability))
+      role1 = Role.President(resource1)
+      student <- Student.from("Alice")
+      title <- Title.from("Thesis")
+      viva <- Viva.from(student, title, List(role1))
+      result = AvailabilityOperations.updateAllAvailabilities(List(resource1, resource2), viva, start, end)
+      expected = Right(List(Teacher(resourceId1, name1, List()), resource2))
+    yield assert(result == expected)
+
+
