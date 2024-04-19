@@ -85,7 +85,7 @@ This method is associated with the "overlaps", "finishedBy", "contains", "starts
 ### 2. Scheduling a Viva
 One of the challenges we faced was determining the intersection of availabilities for scheduling dissertation defenses. This involved finding common time slots where all required resources were available. We addressed this challenge by implementing an algorithm that checks the availability of each resource and identifies the overlapping time slots.
 
-The `ScheduleOperation` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
+The `ScheduleVivaService` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
 
 #### getFirstAvailability
 
@@ -170,7 +170,7 @@ This method takes a list of lists of `Availability` objects and a `Duration`. It
 ### 3. Updating Resources
 Updating the availability of resources posed a challenge, as it required ensuring data consistency and avoiding conflicts with already scheduled defenses. We addressed this challenge by implementing a mechanism that checks for conflicts when updating resource availabilities and adjusts the schedule accordingly.
 
-The `AvailabilityOperations` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
+The `AvailabilityService` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
 
 #### updateAvailability
 
@@ -207,7 +207,7 @@ This method takes an `Availability` object and a start and end `DateTime`. It re
 ### 4. Calculating Preferences
 Calculating preferences for dissertation defenses was another challenge we encountered. We needed to consider the preferences of both the jury members and the students when scheduling the vivas. To address this challenge, we implemented a function that takes a `Viva` object and a list of `Resource` objects as input and returns a list of `Preference` objects.
 
-The `PreferencesCalculation` object in the `pj.domain` package contains several methods related to calculating preferences for scheduling a viva. Here's a brief explanation of each method:
+The `PreferencesService` object in the `pj.domain` package contains several methods related to calculating preferences for scheduling a viva. Here's a brief explanation of each method:
 
 #### sumPreferences
 
