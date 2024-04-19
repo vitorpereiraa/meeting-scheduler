@@ -50,10 +50,201 @@ This log lists the architectural decisions for MS01.
 * [ADR-0004](decisions/0004-role-model-use-enum.md) - Should we use enum or sealed trait for roles?
 
 ## Challenges & Solutions
-Discuss any challenges encountered during the project and how they were addressed.
+
+During the project, we encountered several challenges that required careful consideration and problem-solving. Here are some of the key challenges and their corresponding solutions:
+
+### 1. Scheduling a Viva
+One of the challenges we faced was determining the intersection of availabilities for scheduling dissertation defenses. This involved finding common time slots where all required resources were available. We addressed this challenge by implementing an algorithm that checks the availability of each resource and identifies the overlapping time slots.
+
+The `ScheduleOperation` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
+
+#### getFirstAvailability
+
+```scala
+def getFirstAvailability(availabilities: List[Availability]): Result[Availability]
+```
+
+This method takes a list of `Availability` objects and returns the first availability in the list. The availabilities are sorted by their start time. If there are no availabilities, it returns a `Left` with `NoAvailableSlot`.
+
+#### getAvailabilitiesForVivas
+
+```scala
+def getAvailabilitiesForVivas(viva: Viva, resources: List[Resource], duration: Duration): Result[List[List[Availability]]]
+```
+
+This method takes a `Viva` object, a list of `Resource` objects, and a `Duration`. It filters the resources that match the jury members of the viva and retrieves their availabilities. It then filters these availabilities to only include those that are long enough to accommodate the viva's duration. If there are no matching availabilities, it returns a `Left` with `NoAvailableSlot`.
+
+#### scheduleVivaFromViva
+
+```scala
+def scheduleVivaFromViva(viva: Viva, resources: List[Resource], originalResources: List[Resource], duration: Duration): Result[(ScheduledViva, List[Resource])]
+```
+
+This method takes a `Viva` object, a list of `Resource` objects, another list of original `Resource` objects, and a `Duration`. It attempts to schedule the viva by finding a suitable availability slot among the resources. If successful, it returns a `Right` with a tuple containing the scheduled viva and the updated list of resources. If unsuccessful, it returns a `Left` with an error.
+
+#### innerScheduleVivaFromAgenda
+
+```scala
+def innerScheduleVivaFromAgenda(agenda: Agenda, resources: List[Resource]): Result[List[ScheduledViva]]
+```
+
+This method takes an `Agenda` object and a list of `Resource` objects. It attempts to schedule all the vivas in the agenda by calling `scheduleVivaFromViva` for each viva. If all vivas are successfully scheduled, it returns a `Right` with a list of scheduled vivas. If any viva cannot be scheduled, it returns a `Left` with an error.
+
+#### scheduleVivaFromAgenda
+
+```scala
+def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]]
+```
+
+This method takes an `Agenda` object. It calls `innerScheduleVivaFromAgenda` to schedule all the vivas in the agenda. The scheduled vivas are then sorted by their start time. If all vivas are successfully scheduled, it returns a `Right` with the sorted list of scheduled vivas. If any viva cannot be scheduled, it returns a `Left` with an error.
+
+### 2. Updating Resources
+Updating the availability of resources posed a challenge, as it required ensuring data consistency and avoiding conflicts with already scheduled defenses. We addressed this challenge by implementing a mechanism that checks for conflicts when updating resource availabilities and adjusts the schedule accordingly.
+
+The `AvailabilityOperations` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
+
+#### updateAvailability
+
+```scala
+def updateAvailability(resources: List[Resource], start: DateTime, end: DateTime): Result[Resource]
+```
+
+This method takes a list of `Resource` objects and a start and end `DateTime`. It updates the availability of the resources that have an availability slot that matches the given start and end time. If no such resource is found, it returns a `Left` with `NoResourcesFound`.
+
+#### updateAllAvailabilities
+
+```scala
+def updateAllAvailabilities(resources: List[Resource], viva: Viva, start: DateTime, end: DateTime): Result[List[Resource]]
+```
+
+This method takes a list of `Resource` objects, a `Viva` object, and a start and end `DateTime`. It updates the availability of all resources that are part of the viva's jury and have an availability slot that matches the given start and end time. If any resource cannot be updated, it returns a `Left` with an error.
+
+#### updateAvailability
+
+```scala
+def updateAvailability(resource: Resource, start: DateTime, end: DateTime): Result[Resource]
+```
+
+This method takes a `Resource` object and a start and end `DateTime`. It updates the availability of the resource by removing the interval between the start and end time from the resource's availability. It returns the updated resource.
+
+#### removeInterval
+
+```scala
+def removeInterval(availability: Availability, start: DateTime, end: DateTime): List[Availability]
+```
+
+This method takes an `Availability` object and a start and end `DateTime`. It removes the interval between the start and end time from the availability. It returns the updated availability.
+
+#### durationOfIntersectionIsEqualOrMoreThanDuration
+
+```scala
+def durationOfIntersectionIsEqualOrMoreThanDuration(a: Availability, b: Availability, duration: Duration): Boolean
+```
+
+This method takes two `Availability` objects and a `Duration`. It checks if the intersection of the two availabilities is equal to or longer than the given duration. It returns `true` if it is, `false` otherwise.
+
+#### intersectable
+
+```scala
+def intersectable(a: Availability, b: Availability, duration: Duration): Boolean
+```
+
+This method takes two `Availability` objects and a `Duration`. It checks if the two availabilities intersect and if the intersection is long enough to accommodate the given duration. It returns `true` if they do, `false` otherwise.
+
+#### intersection
+
+```scala
+def intersection(a: Availability, b: Availability, duration: Duration): Availability
+```
+
+This method takes two `Availability` objects and a `Duration`. It returns the intersection of the two availabilities if they intersect and the intersection is long enough to accommodate the given duration.
+
+#### intersectAvailabilityWithList
+
+```scala
+def intersectAvailabilityWithList(availability: Availability, list: List[Availability], duration: Duration): Option[Availability]
+```
+
+This method takes an `Availability` object, a list of `Availability` objects, and a `Duration`. It checks if the given availability intersects with any availability in the list and if the intersection is long enough to accommodate the given duration. If it does, it returns the intersection. If it doesn't, it returns `None`.
+
+#### intersectList
+
+```scala
+def intersectList(a: List[Availability], b: List[Availability], duration: Duration): List[Availability]
+```
+
+This method takes two lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list that intersect with any availability in the second list and where the intersection is long enough to accommodate the given duration.
+
+#### intersectAll
+
+```scala
+def intersectAll(a: List[List[Availability]], duration: Duration): List[Availability]
+```
+
+This method takes a list of lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list of each sublist that intersect with any availability in the second list of each sublist and where the intersection is long enough to accommodate the given duration.
+
+### 3. Calculating Preferences
+Calculating preferences for dissertation defenses was another challenge we encountered. We needed to consider the preferences of both the jury members and the students when scheduling the vivas. To address this challenge, we implemented a function that takes a `Viva` object and a list of `Resource` objects as input and returns a list of `Preference` objects.
+
+The `PreferencesCalculation` object in the `pj.domain` package contains several methods related to calculating preferences for scheduling a viva. Here's a brief explanation of each method:
+
+#### sumPreferences
+
+```scala
+def sumPreferences(list: List[Preference]): Result[SummedPreference]
+```
+
+This method takes a list of `Preference` objects and returns the sum of all preferences in the list. If the sum is greater than or equal to 1, it returns a `SummedPreference`. Otherwise, it returns an `InvalidPreference` error.
+
+#### sumSummedPreferences
+
+```scala
+def sumSummedPreferences(list: List[SummedPreference]): Result[SummedPreference]
+```
+
+This method takes a list of `SummedPreference` objects and returns the sum of all summed preferences in the list. If the sum is greater than or equal to 1, it returns a `SummedPreference`. Otherwise, it returns an `InvalidPreference` error.
+
+#### sumPreferencesOfScheduledVivas
+
+```scala
+def sumPreferencesOfScheduledVivas(scheduledVivas: List[ScheduledViva]): Result[SummedPreference]
+```
+
+This method takes a list of `ScheduledViva` objects and returns the sum of all preferences of the scheduled vivas. It does this by mapping each scheduled viva to its preference and then calling `sumSummedPreferences` on the resulting list of summed preferences.
+
+#### calculatePreferences
+
+```scala
+def calculatePreferences(resources: List[Resource], viva: Viva, startTime: DateTime, endTime: DateTime): Result[SummedPreference]
+```
+
+This method takes a list of `Resource` objects, a `Viva` object, and a start and end `DateTime`. It calculates the sum of the preferences of all resources that are part of the viva's jury and have an availability slot that overlaps with the given start and end time. It does this by filtering the resources, retrieving their preferences, and then calling `sumPreferences` on the resulting list of preferences.
+
+#### calculatePreferenceValuesByStudent
+
+```scala
+def calculatePreferenceValuesByStudent(agenda: Agenda, student: Student, startTime: DateTime, endTime: DateTime): Result[SummedPreference]
+```
+
+This method takes an `Agenda` object, a `Student` object, and a start and end `DateTime`. It calculates the sum of the preferences of all vivas in the agenda that the student is part of and that have a start and end time that overlaps with the given start and end time. It does this by filtering the vivas, retrieving their preferences, and then calling `sumPreferences` on the resulting list of preferences.
+
+#### calculatePreferences
+
+```scala
+def calculatePreferences(agenda: Agenda, students: List[Student], startTime: DateTime, endTime: DateTime): Result[List[SummedPreference]]
+```
+
+This method takes an `Agenda` object, a list of `Student` objects, and a start and end `DateTime`. It calculates the sum of the preferences of all vivas in the agenda that each student is part of and that have a start and end time that overlaps with the given start and end time. It does this by looping over the students, calling `calculatePreferenceValuesByStudent` for each student, and then aggregating the results into a list of summed preferences.
+
+## Tests
+
 
 ## Future Improvements
-Suggest potential improvements or next steps for the project.
+
+Here are some potential improvements and next steps for the project:
+
+1. **Optimization Algorithms:** Implement optimization algorithms to improve the allocation of time slots for viva. This could involve considering additional constraints, such as preferences.
+
 
 ## Conclusion
-Summarize the project's achievements and its implications.
+The project has developed a scheduling system for MsC dissertation defenses, streamlining the process and saving time and effort for all stakeholders involved. By automating the scheduling process and considering various constraints and restrictions, the system optimizes the allocation of time slots and minimizes conflicts. This improves the efficiency and effectiveness of scheduling dissertation defenses, making the process smoother and more convenient. 
