@@ -71,8 +71,7 @@ object AvailabilityOperations :
     a.start.isEqual(b.start) && a.end.isEqual(b.end)
 
   def durationOfIntersectionIsEqualOrMoreThanDuration(a: Availability, b: Availability, duration: Duration): Boolean =
-    val intersection =  Duration
-      .between(a.start.max(b.start), a.end.min(b.end))
+    val intersection = Duration.fromBetween(a.start.max(b.start), a.end.min(b.end))
     intersection match
       case Right(i) => !i.isBefore(duration)
       case Left(l) => false
