@@ -1,5 +1,12 @@
 # Executive Report
 
+Developed by:
+
+- **1060503 - Pedro Fernandes**
+- **1170541 - Alexandra Leite**
+- **1180511 - Vitor Costa**
+- **1191244 - Vitor Pereira**
+
 ## Project Overview
 The project involves the scheduling of MsC dissertation defenses, also known as viva. The objective of the project is to create a scheduling system that can efficiently allocate time slots for viva based on various constraints and restrictions.
 
