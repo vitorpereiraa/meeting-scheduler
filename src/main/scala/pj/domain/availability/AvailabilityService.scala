@@ -62,7 +62,7 @@ object AvailabilityService :
 
   def intersectAvailabilityWithList(availability: Availability, list: List[Availability], duration: Duration): Option[Availability] =
     list
-      .find(a1 => IntervalAlgebra.intersectable(availability, a1, duration) && durationOfIntersectionIsEqualOrMoreThanDuration(availability, a1, duration))
+      .find(a1 => IntervalAlgebra.intersectable(availability, a1) && durationOfIntersectionIsEqualOrMoreThanDuration(availability, a1, duration))
       .map(a1 => intersection(availability, a1, duration))
 
   def intersectList(a: List[Availability], b: List[Availability], duration: Duration): List[Availability] =

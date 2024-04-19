@@ -36,7 +36,7 @@ object PreferencesService:
       case Nil => acc
       case resource :: tail =>
         val preferences = resource.availability
-          .filter(a1 => intersectable(a, a1, duration))
+          .filter(a1 => intersectable(a, a1))
           .map(_.preference)
         loop(tail, acc ++ preferences)
 
