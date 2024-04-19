@@ -1,19 +1,11 @@
 @startuml
-Class Resource
-Class Availability
-Class Viva
-Class Student
-Class Teacher
-Class External
 
-Resource : id : ResourceId
-Resource : name : Name
-Resource : availability : List[Availability]
+class Agenda 
+Agenda : duration : Duration
+Agenda : vivas : List[Viva]
+Agenda : resources : List[Resource]
 
-Availability : start : DateTime
-Availability : end : DateTime
-Availability : preference : Preference
-
+class Viva 
 Viva : student : Student
 Viva : title : Title
 Viva : jury : List[Role]
@@ -21,12 +13,52 @@ Viva : start : DateTime
 Viva : end : DateTime
 Viva : preference : SummedPreference
 
+enum Role 
+Role : President
+Role : Advisor
+Role : CoAdvisor
+Role : Supervisor
+
+class Resource 
+Resource : id : ResourceId
+Resource : name : Name
+Resource : availability : List[Availability]
+
+class ResourceId
+ResourceId : value : String
+
+class TeacherId extends ResourceId
+class ExternalId extends ResourceId
+
+class Teacher extends Resource
+class External extends Resource
+
+Availability : start : DateTime
+Availability : end : DateTime
+Availability : preference : Preference
+
+class ScheduledViva 
+ScheduledViva : student : Student
+ScheduledViva : title : Title
+ScheduledViva : jury : List[Role]
+ScheduledViva : start : DateTime
+ScheduledViva : end : DateTime
+ScheduledViva : preference : SummedPreference
+
+class CompleteSchedule 
+CompleteSchedule : scheduledVivaList : List[ScheduledViva]
+CompleteSchedule : totalPreference : SummedPreference
+
 Student : name : String
 
-Resource <|-- Teacher : extends
-Resource <|-- External : extends
-Viva "1" - "*" Resource
-Viva "1" - "1" Availability
-Resource "1" -- "0..*" Availability
-Student "1" - "1" Viva
+Agenda "1" *-- "1..*" Viva : contains
+Agenda "1" *-- "1..*" Resource : contains
+Viva "1" -- "1..*" Role : contains
+Resource "1" *-- "1..*" Availability : has
+ScheduledViva --> Viva : schedules
+CompleteSchedule "1" -- "1..*" ScheduledViva : contains
+Student "1" -- "1..*" Viva : participates in
+Role "1" -- "1..*" Resource : assigned to
+Resource "1" -- "1" ResourceId : has
+
 @enduml
