@@ -53,7 +53,24 @@ This log lists the architectural decisions for MS01.
 
 During the project, we encountered several challenges that required careful consideration and problem-solving. Here are some of the key challenges and their corresponding solutions:
 
-### 1. Scheduling a Viva
+### 1. Allen's Interval Algebra
+Allen's Interval Algebra is a mathematical framework used to reason about and manipulate intervals of time. It provides a set of rules and operations that allow us to perform various operations on intervals, such as determining their intersection, checking if one interval is contained within another, and more.
+
+![Allen's thirteen basic relations](diagrams/allenIntervalAlgebra.png)
+
+In our project, Allen's Interval Algebra was a crucial tool for solving the challenge of determining the intersection of availabilities for scheduling dissertation defenses. By applying the principles of Allen's Interval Algebra, we were able to identify common time slots where all required resources were available. This helped us streamline the scheduling process and ensure that all necessary resources were allocated efficiently.
+
+#### intersectable
+
+```scala
+def intersectable(a: Availability, b: Availability, duration: Duration): Boolean
+```
+
+This method takes two `Availability` objects and a `Duration`. It checks if the two availabilities intersect and if the intersection is long enough to accommodate the given duration. It returns `true` if they do, `false` otherwise.
+
+This method is associated with the "overlaps", "finishedBy", "contains", "starts" and "equals" relations, as it involves checking if one interval starts before and finishes after the start of another interval.
+
+### 2. Scheduling a Viva
 One of the challenges we faced was determining the intersection of availabilities for scheduling dissertation defenses. This involved finding common time slots where all required resources were available. We addressed this challenge by implementing an algorithm that checks the availability of each resource and identifies the overlapping time slots.
 
 The `ScheduleOperation` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
@@ -98,7 +115,47 @@ def scheduleVivaFromAgenda(agenda: Agenda): Result[List[ScheduledViva]]
 
 This method takes an `Agenda` object. It calls `innerScheduleVivaFromAgenda` to schedule all the vivas in the agenda. The scheduled vivas are then sorted by their start time. If all vivas are successfully scheduled, it returns a `Right` with the sorted list of scheduled vivas. If any viva cannot be scheduled, it returns a `Left` with an error.
 
-### 2. Updating Resources
+#### durationOfIntersectionIsEqualOrMoreThanDuration
+
+```scala
+def durationOfIntersectionIsEqualOrMoreThanDuration(a: Availability, b: Availability, duration: Duration): Boolean
+```
+
+This method takes two `Availability` objects and a `Duration`. It checks if the intersection of the two availabilities is equal to or longer than the given duration. It returns `true` if it is, `false` otherwise.
+
+#### intersection
+
+```scala
+def intersection(a: Availability, b: Availability, duration: Duration): Availability
+```
+
+This method takes two `Availability` objects and a `Duration`. It returns the intersection of the two availabilities if they intersect and the intersection is long enough to accommodate the given duration.
+
+#### intersectAvailabilityWithList
+
+```scala
+def intersectAvailabilityWithList(availability: Availability, list: List[Availability], duration: Duration): Option[Availability]
+```
+
+This method takes an `Availability` object, a list of `Availability` objects, and a `Duration`. It checks if the given availability intersects with any availability in the list and if the intersection is long enough to accommodate the given duration. If it does, it returns the intersection. If it doesn't, it returns `None`.
+
+#### intersectList
+
+```scala
+def intersectList(a: List[Availability], b: List[Availability], duration: Duration): List[Availability]
+```
+
+This method takes two lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list that intersect with any availability in the second list and where the intersection is long enough to accommodate the given duration.
+
+#### intersectAll
+
+```scala
+def intersectAll(a: List[List[Availability]], duration: Duration): List[Availability]
+```
+
+This method takes a list of lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list of each sublist that intersect with any availability in the second list of each sublist and where the intersection is long enough to accommodate the given duration.
+
+### 3. Updating Resources
 Updating the availability of resources posed a challenge, as it required ensuring data consistency and avoiding conflicts with already scheduled defenses. We addressed this challenge by implementing a mechanism that checks for conflicts when updating resource availabilities and adjusts the schedule accordingly.
 
 The `AvailabilityOperations` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
@@ -135,55 +192,7 @@ def removeInterval(availability: Availability, start: DateTime, end: DateTime): 
 
 This method takes an `Availability` object and a start and end `DateTime`. It removes the interval between the start and end time from the availability. It returns the updated availability.
 
-#### durationOfIntersectionIsEqualOrMoreThanDuration
-
-```scala
-def durationOfIntersectionIsEqualOrMoreThanDuration(a: Availability, b: Availability, duration: Duration): Boolean
-```
-
-This method takes two `Availability` objects and a `Duration`. It checks if the intersection of the two availabilities is equal to or longer than the given duration. It returns `true` if it is, `false` otherwise.
-
-#### intersectable
-
-```scala
-def intersectable(a: Availability, b: Availability, duration: Duration): Boolean
-```
-
-This method takes two `Availability` objects and a `Duration`. It checks if the two availabilities intersect and if the intersection is long enough to accommodate the given duration. It returns `true` if they do, `false` otherwise.
-
-#### intersection
-
-```scala
-def intersection(a: Availability, b: Availability, duration: Duration): Availability
-```
-
-This method takes two `Availability` objects and a `Duration`. It returns the intersection of the two availabilities if they intersect and the intersection is long enough to accommodate the given duration.
-
-#### intersectAvailabilityWithList
-
-```scala
-def intersectAvailabilityWithList(availability: Availability, list: List[Availability], duration: Duration): Option[Availability]
-```
-
-This method takes an `Availability` object, a list of `Availability` objects, and a `Duration`. It checks if the given availability intersects with any availability in the list and if the intersection is long enough to accommodate the given duration. If it does, it returns the intersection. If it doesn't, it returns `None`.
-
-#### intersectList
-
-```scala
-def intersectList(a: List[Availability], b: List[Availability], duration: Duration): List[Availability]
-```
-
-This method takes two lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list that intersect with any availability in the second list and where the intersection is long enough to accommodate the given duration.
-
-#### intersectAll
-
-```scala
-def intersectAll(a: List[List[Availability]], duration: Duration): List[Availability]
-```
-
-This method takes a list of lists of `Availability` objects and a `Duration`. It returns a list of all availabilities in the first list of each sublist that intersect with any availability in the second list of each sublist and where the intersection is long enough to accommodate the given duration.
-
-### 3. Calculating Preferences
+### 4. Calculating Preferences
 Calculating preferences for dissertation defenses was another challenge we encountered. We needed to consider the preferences of both the jury members and the students when scheduling the vivas. To address this challenge, we implemented a function that takes a `Viva` object and a list of `Resource` objects as input and returns a list of `Preference` objects.
 
 The `PreferencesCalculation` object in the `pj.domain` package contains several methods related to calculating preferences for scheduling a viva. Here's a brief explanation of each method:
@@ -267,6 +276,12 @@ The operations tests validate the scheduling operations, such as scheduling a vi
 
 3. **Calculating Preferences**: These tests would validate that the system can correctly calculate preferences for scheduling a viva. This could involve creating a viva with specific resources and preferences, running the preference calculation operation, and then verifying that the calculated preferences match the expected values.
 
+### Assessment Tests
+
+This are tests given by the professor to assess the correctness of the scheduling system. It was given input files for us to tests the scheduling system and then compare to the given output files.
+Below, it depicts the results of these tests, showing that they all pass, assuring that the scheduling system is working fine.
+
+![Assessment](diagrams/assessmentTests.png)
 
 ## Future Improvements
 
