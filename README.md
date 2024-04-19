@@ -322,7 +322,8 @@ By running the tests in the file `ScheduleMS01Test` it shows the tests that pass
 ### Assessment Tests
 
 This are tests given by the professor to assess the correctness of the scheduling system. It was given input files for us to tests the scheduling system and then compare to the given output files.
-Below, it depicts the results of these tests, showing that they all pass, assuring that the scheduling system is working fine.
+
+By running the tests in `AssessmentTestMS01` we can verify that they all pass, assuring that the scheduling system is working fine.
 
 ![Assessment](diagrams/assessmentTests.png)
 
