@@ -70,7 +70,7 @@ In our project, Allen's Interval Algebra was a crucial tool for solving the chal
 #### intersectable
 
 ```scala
-def intersectable(a: Availability, b: Availability, duration: Duration): Boolean =
+def intersectable(a: Availability, b: Availability): Boolean =
     overlaps(a,b)    || overlaps(b, a)  ||
     finishedBy(a, b) || finishedBy(b,a) ||
     contains(a, b)   || contains(b, a)  ||
