@@ -276,6 +276,12 @@ The operations tests validate the scheduling operations, such as scheduling a vi
 
 3. **Calculating Preferences**: These tests would validate that the system can correctly calculate preferences for scheduling a viva. This could involve creating a viva with specific resources and preferences, running the preference calculation operation, and then verifying that the calculated preferences match the expected values.
 
+### Assessment Tests
+
+This are tests given by the professor to assess the correctness of the scheduling system. It was given input files for us to tests the scheduling system and then compare to the given output files.
+Below, it depicts the results of these tests, showing that they all pass, assuring that the scheduling system is working fine.
+
+![Assessment](diagrams/assessmentTests.png)
 
 ## Future Improvements
 
