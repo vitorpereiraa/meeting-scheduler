@@ -1,5 +1,12 @@
 # Executive Report
 
+Developed by:
+
+- **1060503 - Pedro Fernandes**
+- **1170541 - Alexandra Leite**
+- **1180511 - Vitor Costa**
+- **1191244 - Vitor Pereira**
+
 ## Project Overview
 The project involves the scheduling of MsC dissertation defenses, also known as viva. The objective of the project is to create a scheduling system that can efficiently allocate time slots for viva based on various constraints and restrictions.
 
@@ -78,7 +85,7 @@ This method is associated with the "overlaps", "finishedBy", "contains", "starts
 ### 2. Scheduling a Viva
 One of the challenges we faced was determining the intersection of availabilities for scheduling dissertation defenses. This involved finding common time slots where all required resources were available. We addressed this challenge by implementing an algorithm that checks the availability of each resource and identifies the overlapping time slots.
 
-The `ScheduleOperation` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
+The `ScheduleVivaService` object in the `pj.domain` package contains several methods related to scheduling a viva. Here's a brief explanation of each method:
 
 #### getFirstAvailability
 
@@ -163,7 +170,7 @@ This method takes a list of lists of `Availability` objects and a `Duration`. It
 ### 3. Updating Resources
 Updating the availability of resources posed a challenge, as it required ensuring data consistency and avoiding conflicts with already scheduled defenses. We addressed this challenge by implementing a mechanism that checks for conflicts when updating resource availabilities and adjusts the schedule accordingly.
 
-The `AvailabilityOperations` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
+The `AvailabilityService` object in the `pj.domain` package contains several methods related to managing and manipulating availabilities. Here's a brief explanation of each method:
 
 #### updateAvailability
 
@@ -200,7 +207,7 @@ This method takes an `Availability` object and a start and end `DateTime`. It re
 ### 4. Calculating Preferences
 Calculating preferences for dissertation defenses was another challenge we encountered. We needed to consider the preferences of both the jury members and the students when scheduling the vivas. To address this challenge, we implemented a function that takes a `Viva` object and a list of `Resource` objects as input and returns a list of `Preference` objects.
 
-The `PreferencesCalculation` object in the `pj.domain` package contains several methods related to calculating preferences for scheduling a viva. Here's a brief explanation of each method:
+The `PreferencesService` object in the `pj.domain` package contains several methods related to calculating preferences for scheduling a viva. Here's a brief explanation of each method:
 
 #### sumPreferences
 
@@ -270,6 +277,27 @@ The domain tests validate the core domain entities and operations, such as viva,
 
 6. **Complete Schedule Tests**: These tests would validate the creation and manipulation of complete schedule instances. This could involve creating complete schedule objects with different attributes, updating complete schedule attributes, and verifying that the complete schedule objects are correctly constructed.
 
+7. **Teacher Tests**: These tests would validate the creation and manipulation of teacher instances. This could involve creating teacher objects with different attributes, updating teacher attributes, and verifying that the teacher objects are correctly constructed.
+
+
+### SimpleType Tests
+
+The simple type tests validate the simple types used in the domain model, such as `DateTime` and `Duration`. They ensure that these simple types are correctly implemented and behave as expected.
+
+1. **DateTime Tests**: These tests would validate the creation and manipulation of `DateTime` instances. This could involve creating `DateTime` objects with different attributes, updating `DateTime` attributes, and verifying that the `DateTime` objects are correctly constructed.
+
+2. **Duration Tests**: These tests would validate the creation and manipulation of `Duration` instances. This could involve creating `Duration` objects with different attributes, updating `Duration` attributes, and verifying that the `Duration` objects are correctly constructed.
+
+3. **Preference Tests**: These tests would validate the creation and manipulation of `Preference` instances. This could involve creating `Preference` objects with different attributes, updating `Preference` attributes, and verifying that the `Preference` objects are correctly constructed.
+
+4. **Summed Preference Tests**: These tests would validate the creation and manipulation of `SummedPreference` instances. This could involve creating `SummedPreference` objects with different attributes, updating `SummedPreference` attributes, and verifying that the `SummedPreference` objects are correctly constructed.
+
+5. **Student Tests**: These tests would validate the creation and manipulation of `Student` instances. This could involve creating `Student` objects with different attributes, updating `Student` attributes, and verifying that the `Student` objects are correctly constructed.
+
+6. **Title Tests**: These tests would validate the creation and manipulation of `Title` instances. This could involve creating `Title` objects with different attributes, updating `Title` attributes, and verifying that the `Title` objects are correctly constructed.
+
+7. **Name Tests**: These tests would validate the creation and manipulation of `Name` instances. This could involve creating `Name` objects with different attributes, updating `Name` attributes, and verifying that the `Name` objects are correctly constructed.
+
 
 ### Operations Tests
 
@@ -281,10 +309,21 @@ The operations tests validate the scheduling operations, such as scheduling a vi
 
 3. **Calculating Preferences**: These tests would validate that the system can correctly calculate preferences for scheduling a viva. This could involve creating a viva with specific resources and preferences, running the preference calculation operation, and then verifying that the calculated preferences match the expected values.
 
+### Functional Tests
+
+These tests validate the overall functionality of the scheduling system by testing the integration of various components and operations. They ensure that the system behaves as expected.
+
+These tests utilize files of input and output created to validate the that the system is working correctly.
+
+By running the tests in the file `ScheduleMS01Test` it shows the tests that pass.
+
+![Functional Tests](diagrams/functionalTests.png)
+
 ### Assessment Tests
 
 This are tests given by the professor to assess the correctness of the scheduling system. It was given input files for us to tests the scheduling system and then compare to the given output files.
-Below, it depicts the results of these tests, showing that they all pass, assuring that the scheduling system is working fine.
+
+By running the tests in `AssessmentTestMS01` we can verify that they all pass, assuring that the scheduling system is working fine.
 
 ![Assessment](diagrams/assessmentTests.png)
 
