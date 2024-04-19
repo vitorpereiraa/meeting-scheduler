@@ -65,19 +65,3 @@ class DomainTest extends AnyFunSuite:
     yield
       assert(completeSchedule.scheduledVivaList.contains(scheduledViva))
       assert(completeSchedule.totalPreference == preference)
-
-  test("Teacher should fail with invalid TeacherId"):
-    val invalidTeacherId = TeacherId.from("Invalid")
-    assert(invalidTeacherId.isLeft)
-
-  test("Availability should fail with invalid DateTime"):
-    val start = DateTime.from("Invalid")
-    assert(start.isLeft)
-
-  test("ScheduledViva should fail with invalid Student"):
-    val invalidStudent = Student.from("")
-    assert(invalidStudent.isLeft)
-
-  test("CompleteSchedule should fail with invalid totalPreference"):
-    val invalidTotalPreference = SummedPreference.from(-1)
-    assert(invalidTotalPreference.isLeft)

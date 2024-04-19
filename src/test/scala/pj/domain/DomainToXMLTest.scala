@@ -8,7 +8,7 @@ import pj.xml.DomainToXML
 
 import scala.language.adhocExtensions
 import scala.xml.Utility.trim
-import scala.xml.{Elem, PrettyPrinter}
+import scala.xml.{Elem, Utility}
 
 class DomainToXMLTest extends AnyFunSuite:
   test("DomainToXML"):  
@@ -49,11 +49,7 @@ class DomainToXMLTest extends AnyFunSuite:
       vivaSchedule = ScheduledViva(student, title, jury, start, end, preference)
       outputSchedule = CompleteSchedule(List(vivaSchedule), totalPref)
     yield
-      val xml = DomainToXML.generateOutputXML(outputSchedule)
-      // Create a PrettyPrinter
-      val printer = new PrettyPrinter(120, 4)
-      // Use the PrettyPrinter to format the XML
-      val formattedXml: String = printer.format(xml)
+      val xml = DomainToXML.generateOutputXML(outputSchedule)     
       def expected: Elem =
         <schedule xsi:noNamespaceSchemaLocation="../../schedule.xsd" totalPreference="4"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -63,6 +59,4 @@ class DomainToXMLTest extends AnyFunSuite:
             <supervisor name="External 1"/>
           </viva>
         </schedule>
-      val expectedXml: String = printer.format(expected)
-      assert(formattedXml != null)
-      assert(formattedXml === expectedXml)
+      assert(Utility.trim(xml) == Utility.trim(expected))
