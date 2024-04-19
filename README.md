@@ -270,6 +270,27 @@ The domain tests validate the core domain entities and operations, such as viva,
 
 6. **Complete Schedule Tests**: These tests would validate the creation and manipulation of complete schedule instances. This could involve creating complete schedule objects with different attributes, updating complete schedule attributes, and verifying that the complete schedule objects are correctly constructed.
 
+7. **Teacher Tests**: These tests would validate the creation and manipulation of teacher instances. This could involve creating teacher objects with different attributes, updating teacher attributes, and verifying that the teacher objects are correctly constructed.
+
+
+### SimpleType Tests
+
+The simple type tests validate the simple types used in the domain model, such as `DateTime` and `Duration`. They ensure that these simple types are correctly implemented and behave as expected.
+
+1. **DateTime Tests**: These tests would validate the creation and manipulation of `DateTime` instances. This could involve creating `DateTime` objects with different attributes, updating `DateTime` attributes, and verifying that the `DateTime` objects are correctly constructed.
+
+2. **Duration Tests**: These tests would validate the creation and manipulation of `Duration` instances. This could involve creating `Duration` objects with different attributes, updating `Duration` attributes, and verifying that the `Duration` objects are correctly constructed.
+
+3. **Preference Tests**: These tests would validate the creation and manipulation of `Preference` instances. This could involve creating `Preference` objects with different attributes, updating `Preference` attributes, and verifying that the `Preference` objects are correctly constructed.
+
+4. **Summed Preference Tests**: These tests would validate the creation and manipulation of `SummedPreference` instances. This could involve creating `SummedPreference` objects with different attributes, updating `SummedPreference` attributes, and verifying that the `SummedPreference` objects are correctly constructed.
+
+5. **Student Tests**: These tests would validate the creation and manipulation of `Student` instances. This could involve creating `Student` objects with different attributes, updating `Student` attributes, and verifying that the `Student` objects are correctly constructed.
+
+6. **Title Tests**: These tests would validate the creation and manipulation of `Title` instances. This could involve creating `Title` objects with different attributes, updating `Title` attributes, and verifying that the `Title` objects are correctly constructed.
+
+7. **Name Tests**: These tests would validate the creation and manipulation of `Name` instances. This could involve creating `Name` objects with different attributes, updating `Name` attributes, and verifying that the `Name` objects are correctly constructed.
+
 
 ### Operations Tests
 
@@ -280,6 +301,16 @@ The operations tests validate the scheduling operations, such as scheduling a vi
 2. **Updating Resource Availabilities**: These tests would check that the system can correctly update the availability of resources. This could involve creating a resource with a specific availability, running the update operation with a new availability, and then verifying that the resource's availability has been updated correctly.  
 
 3. **Calculating Preferences**: These tests would validate that the system can correctly calculate preferences for scheduling a viva. This could involve creating a viva with specific resources and preferences, running the preference calculation operation, and then verifying that the calculated preferences match the expected values.
+
+### Functional Tests
+
+These tests validate the overall functionality of the scheduling system by testing the integration of various components and operations. They ensure that the system behaves as expected.
+
+These tests utilize files of input and output created to validate the that the system is working correctly.
+
+By running the tests in the file `ScheduleMS01Test` it shows the tests that pass.
+
+![Functional Tests](diagrams/functionalTests.png)
 
 ### Assessment Tests
 
