@@ -85,13 +85,22 @@ object Generators extends Properties("Generators"):
       hourStr      = hour.toString.reverse.padTo(2, '0').reverse
       minuteStr    = minute.toString.reverse.padTo(2, '0').reverse
       secondsStr   = seconds.toString.reverse.padTo(2, '0').reverse
-      dateTime     <- DateTime.from(s"$year-$monthStr-${dayStr}T$hourStr:$minuteStr:$secondsStr").fold(err => Gen.fail, Gen.const)
+      dateTime     <- DateTime.from(s"$year-$monthStr-${dayStr}T$hourStr:$minuteStr:$secondsStr").fold(_ => Gen.fail, Gen.const)
     yield dateTime
 
   private def daysInMonth(year: Int, month: Int): Int =
     val febDays = if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) 29 else 28 // feb days depend if it is a leap year
     val days = Array(31, febDays , 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
     days(month - 1)
+
+  private def availabilityGen: Gen[Availability] =
+    for
+      start      <- dateTimeGen
+      end        <- dateTimeGen
+      preference <- preferenceGen
+      availability <- Availability.from(start, end, preference).fold(_ => Gen.fail, Gen.const)
+    yield availability
+
 
   // TODO: Add more generators
 
@@ -148,4 +157,9 @@ object Generators extends Properties("Generators"):
       (hour >= MIN_HOUR && hour <= MAX_HOUR) &&
       (minute >= MIN_MINUTE && minute <= MAX_MINUTE) &&
       (second >= MIN_SECOND && second <= MAX_SECOND)
+    }
+
+  property("All availabilities must be valid") =
+    forAll(availabilityGen) {
+      av => av.start.isBefore(av.end)
     }

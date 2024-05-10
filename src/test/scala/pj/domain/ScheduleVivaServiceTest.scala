@@ -21,7 +21,7 @@ private class ScheduleVivaServiceTest extends AnyFunSuite:
       start <- DateTime.from("2024-04-14T09:00")
       end <- DateTime.from("2024-04-14T12:00")
       preference <- Preference.from(3)
-      availability = Availability(start, end, preference)
+      availability <- Availability.from(start, end, preference)
       availabilities = List[Availability](availability)
       result = ScheduleVivaService.getFirstAvailability(availabilities)
     yield assert(result === Right(availability))
@@ -31,12 +31,12 @@ private class ScheduleVivaServiceTest extends AnyFunSuite:
       start1 <- DateTime.from("2024-04-14T09:00")
       end1 <- DateTime.from("2024-04-14T12:00")
       preference1 <- Preference.from(3)
-      availability1 = Availability(start1, end1, preference1)
+      availability1 <- Availability.from(start1, end1, preference1)
 
       start2 <- DateTime.from("2024-04-15T09:00")
       end2 <- DateTime.from("2024-04-15T12:00")
       preference2 <- Preference.from(3)
-      availability2 = Availability(start2, end2, preference2)
+      availability2 <- Availability.from(start2, end2, preference2)
 
       availabilities = List[Availability](availability2, availability1) // availability1 is earlier
       result = ScheduleVivaService.getFirstAvailability(availabilities)

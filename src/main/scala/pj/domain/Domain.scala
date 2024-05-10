@@ -59,7 +59,13 @@ sealed trait Resource:
 final case class Teacher(id: ResourceId, name: Name, availability: List[Availability]) extends Resource
 final case class External(id: ResourceId, name: Name, availability: List[Availability]) extends Resource
 
-final case class Availability(start: DateTime, end: DateTime, preference: Preference)
+final case class Availability private(start: DateTime, end: DateTime, preference: Preference)
+object Availability:
+  def from(start: DateTime, end: DateTime, preference: Preference): Result[Availability] =
+    if end.isBefore(start) then 
+      Left(InvalidAvailability("end time is before start time"))
+    else
+      Right(Availability(start, end, preference))
 
 final case class ScheduledViva(student: Student, title: Title, jury: List[Role], start: DateTime, end: DateTime, preference: SummedPreference)
 final case class CompleteSchedule(scheduledVivaList: List[ScheduledViva], totalPreference: SummedPreference)

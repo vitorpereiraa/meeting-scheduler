@@ -5,10 +5,7 @@ import pj.domain.SimpleTypes.*
 import pj.xml.XMLtoDomain
 import pj.domain.DomainError.*
 
-import scala.collection.immutable.Nil.:::
-import scala.language.adhocExtensions
-
-private class XMLtoDomainTest extends AnyFunSuite:
+class XMLtoDomainTest extends AnyFunSuite:
 
   test("ensure valid availability is valid"):
     val start = "2024-05-30T09:30:00"
@@ -20,7 +17,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       e <- DateTime.from(end)
       p <- Preference.from(preference)
     yield
-      val expected = Right(Availability(s, e, p))
+      val expected = Availability.from(s, e, p)
       val result = XMLtoDomain.availability(availabilityXml)
       assert(result === expected)
 
@@ -40,7 +37,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       s     <- DateTime.from(start)
       e     <- DateTime.from(end)
       p     <- Preference.from(preference)
-      av    = Availability(s, e, p)
+      av    <- Availability.from(s, e, p)
     yield
       val expected = Right(Teacher(tid, tname, List(av)))
       val result = XMLtoDomain.teacher(teacherXml)
@@ -62,7 +59,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       s     <- DateTime.from(start)
       e     <- DateTime.from(end)
       p     <- Preference.from(preference)
-      av    = Availability(s, e, p)
+      av    <- Availability.from(s, e, p)
     yield
       val expected = Right(External(eid, ename, List(av)))
       val result = XMLtoDomain.external(externalXml)
@@ -98,14 +95,14 @@ private class XMLtoDomainTest extends AnyFunSuite:
       ees <- DateTime.from(estart)
       eee <- DateTime.from(eend)
       eep <- Preference.from(epreference)
-      eeav = Availability(ees, eee, eep)
+      eeav <- Availability.from(ees, eee, eep)
       externals = List(External(eeid, eename, List(eeav)))
       ttid   <- TeacherId.from(tid)
       ttname <- Name.from(tname)
       tts     <- DateTime.from(tstart)
       tte     <- DateTime.from(tend)
       ttp     <- Preference.from(tpreference)
-      ttav    = Availability(tts, tte, ttp)
+      ttav    <- Availability.from(tts, tte, ttp)
       teachers = List(Teacher(ttid, ttname, List(ttav)))
     yield
       val expected = Right(teachers ::: externals)
@@ -139,7 +136,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       ees <- DateTime.from(estart)
       eee <- DateTime.from(eend)
       eep <- Preference.from(epreference)
-      eeav = Availability(ees, eee, eep)
+      eeav <- Availability.from(ees, eee, eep)
       external = External(eeid, eename, List(eeav))
       externals = List(external)
       ttid <- TeacherId.from(tid)
@@ -149,7 +146,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       tts <- DateTime.from(tstart)
       tte <- DateTime.from(tend)
       ttp <- Preference.from(tpreference)
-      ttav = Availability(tts, tte, ttp)
+      ttav <- Availability.from(tts, tte, ttp)
       teacher = Teacher(ttid, ttname, List(ttav))
       teacher2 = Teacher(ttid2, ttname2, List(ttav))
       teachers = List(teacher, teacher2)
@@ -212,7 +209,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       ees <- DateTime.from(estart)
       eee <- DateTime.from(eend)
       eep <- Preference.from(epreference)
-      eeav = Availability(ees, eee, eep)
+      eeav <- Availability.from(ees, eee, eep)
       external = External(eeid, eename, List(eeav))
       externals = List(external)
       ttid <- TeacherId.from(tid)
@@ -222,7 +219,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       tts <- DateTime.from(tstart)
       tte <- DateTime.from(tend)
       ttp <- Preference.from(tpreference)
-      ttav = Availability(tts, tte, ttp)
+      ttav <- Availability.from(tts, tte, ttp)
       teacher = Teacher(ttid, ttname, List(ttav))
       teacher2 = Teacher(ttid2, ttname2, List(ttav))
       teachers = List(teacher, teacher2)
@@ -268,7 +265,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       ees <- DateTime.from(estart)
       eee <- DateTime.from(eend)
       eep <- Preference.from(epreference)
-      eeav = Availability(ees, eee, eep)
+      eeav <- Availability.from(ees, eee, eep)
       external = External(eeid, eename, List(eeav))
       externals = List(external)
       ttid <- TeacherId.from(tid)
@@ -278,7 +275,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       tts <- DateTime.from(tstart)
       tte <- DateTime.from(tend)
       ttp <- Preference.from(tpreference)
-      ttav = Availability(tts, tte, ttp)
+      ttav <- Availability.from(tts, tte, ttp)
       teacher = Teacher(ttid, ttname, List(ttav))
       teacher2 = Teacher(ttid2, ttname2, List(ttav))
       teachers = List(teacher, teacher2)
@@ -314,7 +311,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       ees <- DateTime.from(estart)
       eee <- DateTime.from(eend)
       eep <- Preference.from(epreference)
-      eeav = Availability(ees, eee, eep)
+      eeav <- Availability.from(ees, eee, eep)
       external = External(eeid, eename, List(eeav))
       externals = List(external)
       ttid <- TeacherId.from(tid)
@@ -324,7 +321,7 @@ private class XMLtoDomainTest extends AnyFunSuite:
       tts <- DateTime.from(tstart)
       tte <- DateTime.from(tend)
       ttp <- Preference.from(tpreference)
-      ttav = Availability(tts, tte, ttp)
+      ttav <- Availability.from(tts, tte, ttp)
       teacher = Teacher(ttid, ttname, List(ttav))
       teacher2 = Teacher(ttid2, ttname2, List(ttav))
       teachers = List(teacher, teacher2)

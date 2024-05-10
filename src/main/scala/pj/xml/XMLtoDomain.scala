@@ -55,7 +55,8 @@ object XMLtoDomain:
       end           <- DateTime.from(endStr)
       preferenceStr <- fromAttribute(xml, "preference")
       preference    <- Preference.from(preferenceStr)
-    yield Availability(start, end, preference)
+      availability  <- Availability.from(start, end, preference)
+    yield availability
 
   def viva(resources: List[Resource])(xml: Node): Result[Viva] =
     for

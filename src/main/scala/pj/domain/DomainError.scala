@@ -18,6 +18,7 @@ enum DomainError:
   case InvalidDateTime(value: String)
   case InvalidEndDateTime(value: String)
   case InvalidPreference(value: String)
+  case InvalidAvailability(value: String)
   case ResourceNotFound(value: ResourceId)  
   case StudentNotFound(value: String)  
   case AvailabilityNotFound(value: Availability)
@@ -40,6 +41,7 @@ enum DomainError:
     case InvalidDateTime(value) => value
     case InvalidEndDateTime(value) => value
     case InvalidPreference(value) => s"InvalidPreference($value)"
+    case InvalidAvailability(value) => value
     case ResourceNotFound(value) => value.toString
     case StudentNotFound(value) => value
     case AvailabilityNotFound(value) => s"${value.start} - ${value.end}"

@@ -12,7 +12,7 @@ class DomainTest extends AnyFunSuite:
       start <- DateTime.from("2022-01-01T09:00:00")
       end <- DateTime.from("2022-01-01T10:00:00")
       preference <- Preference.from(1)
-      availability = Availability(start, end, preference)
+      availability <- Availability.from(start, end, preference)
       teacher = Teacher(teacherId, name, List(availability))
       isResource = teacher.getClass == classOf[Resource]
     yield  assert(!isResource, "Teacher is not a Resource")
@@ -23,7 +23,7 @@ class DomainTest extends AnyFunSuite:
       start <- DateTime.from("2022-01-01T09:00:00")
       end <- DateTime.from("2022-01-01T10:00:00")
       preference <- Preference.from(1)
-      availability = Availability(start, end, preference)
+      availability <- Availability.from(start, end, preference)
     yield
       assert(availability.start == start)
       assert(availability.end == end)
