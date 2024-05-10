@@ -4,6 +4,7 @@ import org.scalacheck.Prop.forAll
 import org.scalacheck.*
 import pj.domain.SimpleTypes.*
 import pj.domain.*
+import pj.domain.Role.{Advisor, President}
 
 object Generators extends Properties("Generators"):
 
@@ -115,6 +116,20 @@ object Generators extends Properties("Generators"):
       id  <- ExternalId.from(s"E$num").fold(_ => Gen.fail, Gen.const)
     yield id
 
+  private def teacherGen: Gen[Teacher] =
+    for
+      id           <- teacherIdGen
+      name         <- nameGen
+      availability <- Gen.choose(1,12).flatMap(n => Gen.listOfN(n, availabilityGen))
+    yield Teacher(id, name, availability)
+
+  private def externalGen: Gen[External] =
+    for
+      id           <- externalIdGen
+      name         <- nameGen
+      availability <- Gen.choose(1,12).flatMap(n => Gen.listOfN(n, availabilityGen))
+    yield External(id, name, availability)
+
   // TODO: Add more generators
 
   // Properties
@@ -178,8 +193,22 @@ object Generators extends Properties("Generators"):
 
   property("All teacherIds must have the format T[0-9]{3}") =
     forAll(teacherIdGen):
-      t => t.value.matches("T[0-9]{3}")
+      tid => tid.value.matches("T[0-9]{3}")
 
   property("All externalIds must have the format E[0-9]{3}") =
     forAll(externalIdGen):
-      t => t.value.matches("E[0-9]{3}")
+      eid => eid.value.matches("E[0-9]{3}")
+
+  property("All teachers must have a id, name and at least one availability.") =
+    forAll(teacherGen):
+      t =>
+        !t.name.to.isBlank &&
+        !t.id.value.isBlank &&
+        t.availability.nonEmpty
+
+  property("All externals must have a id, name and at least one availability.") =
+    forAll(externalGen):
+      e =>
+        !e.name.to.isBlank &&
+        !e.id.value.isBlank &&
+         e.availability.nonEmpty
