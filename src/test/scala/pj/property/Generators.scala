@@ -26,6 +26,8 @@ object Generators extends Properties("Generators"):
   val MIN_MONTH = 1
   val MAX_MONTH = 12
   val MIN_DAY = 1
+  val RESOURCE_ID_MIN = 100
+  val RESOURCE_ID_MAX = 999
 
   // Generators
   private def preferenceGen: Gen[Preference] =
@@ -95,12 +97,23 @@ object Generators extends Properties("Generators"):
 
   private def availabilityGen: Gen[Availability] =
     for
-      start      <- dateTimeGen
-      end        <- dateTimeGen
-      preference <- preferenceGen
+      start        <- dateTimeGen
+      end          <- dateTimeGen
+      preference   <- preferenceGen
       availability <- Availability.from(start, end, preference).fold(_ => Gen.fail, Gen.const)
     yield availability
 
+  private def teacherIdGen: Gen[TeacherId] =
+    for
+      num <- Gen.chooseNum(RESOURCE_ID_MIN, RESOURCE_ID_MAX)
+      id  <- TeacherId.from(s"T$num").fold(_ => Gen.fail, Gen.const)
+    yield id
+
+  private def externalIdGen: Gen[ExternalId] =
+    for
+      num <- Gen.chooseNum(RESOURCE_ID_MIN, RESOURCE_ID_MAX)
+      id  <- ExternalId.from(s"E$num").fold(_ => Gen.fail, Gen.const)
+    yield id
 
   // TODO: Add more generators
 
@@ -160,6 +173,13 @@ object Generators extends Properties("Generators"):
     }
 
   property("All availabilities must be valid") =
-    forAll(availabilityGen) {
+    forAll(availabilityGen):
       av => av.start.isBefore(av.end)
-    }
+
+  property("All teacherIds must have the format T[0-9]{3}") =
+    forAll(teacherIdGen):
+      t => t.value.matches("T[0-9]{3}")
+
+  property("All externalIds must have the format E[0-9]{3}") =
+    forAll(externalIdGen):
+      t => t.value.matches("E[0-9]{3}")

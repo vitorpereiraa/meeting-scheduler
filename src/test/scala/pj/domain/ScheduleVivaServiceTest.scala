@@ -9,7 +9,7 @@ import pj.domain.scheduleviva.ScheduleVivaService
 
 import scala.language.adhocExtensions
 
-private class ScheduleVivaServiceTest extends AnyFunSuite:
+class ScheduleVivaServiceTest extends AnyFunSuite:
 
   test("getFirstAvailability returns Left when the availabilities list is empty"):
     val availabilities = List[Availability]()
