@@ -1,13 +1,13 @@
 package pj.domain
 
 import pj.domain.DomainError.*
-import pj.domain.{DomainError, Result}
+import pj.domain.Result
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, LocalTime}
 import scala.annotation.targetName
+import scala.language.postfixOps
 import scala.util.Try
-import scala.util.matching.Regex
 
 object SimpleTypes:
 
@@ -26,10 +26,16 @@ object SimpleTypes:
           success => Right(success)
         )
     def fromBetween(start: DateTime, end: DateTime): Result[Duration] =
-      val startMinutes = start.getHour * 60 + start.getMinute
-      val endMinutes = end.getHour * 60 + end.getMinute
-      val durationMinutes = endMinutes - startMinutes
-      from(durationMinutes / 60, durationMinutes % 60)
+      Try(java.time.Duration.between(start, end))
+        .fold(
+          error => Left(InvalidDuration(start.toString + "between" + end.toString)),
+          duration =>
+            Try(LocalTime.of(duration.toHours.toInt,(duration.toMinutes % 60).toInt))
+            .fold(
+              error => Left(InvalidDuration(duration.toString)),
+              success => Right(success)
+            )
+        )
   extension (d: Duration)
     @targetName("DurationTo")
     def to: String = d.format(DateTimeFormatter.ISO_LOCAL_TIME)

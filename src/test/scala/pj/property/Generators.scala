@@ -5,6 +5,7 @@ import org.scalacheck.*
 import pj.domain.SimpleTypes.*
 import pj.domain.*
 import pj.domain.Role.{Advisor, President}
+import pj.domain.scheduleviva.ScheduleVivaService
 
 object Generators extends Properties("Generators"):
 
@@ -46,8 +47,8 @@ object Generators extends Properties("Generators"):
   private def genDuration: Gen[Duration] = for {
       hour <- Gen.chooseNum(MIN_HOUR, MAX_HOUR)
       minute <- Gen.chooseNum(MIN_MINUTE, MAX_MINUTE)
-      hourStr = hour.toString.padTo(2, '0')
-      minuteStr = minute.toString.padTo(2, '0')
+      hourStr = hour.toString.reverse.padTo(2, '0').reverse
+      minuteStr = minute.toString.reverse.padTo(2, '0').reverse
       duration <- Duration.from(s"$hourStr:$minuteStr").fold(_ => Gen.fail, Gen.const)
     } yield duration
 
@@ -96,41 +97,69 @@ object Generators extends Properties("Generators"):
     val days = Array(31, febDays , 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
     days(month - 1)
 
-  private def availabilityGen: Gen[Availability] =
-    for
-      start        <- dateTimeGen
-      end          <- dateTimeGen
-      preference   <- preferenceGen
-      availability <- Availability.from(start, end, preference).fold(_ => Gen.fail, Gen.const)
-    yield availability
-
   private def teacherIdGen: Gen[TeacherId] =
     for
       num <- Gen.chooseNum(RESOURCE_ID_MIN, RESOURCE_ID_MAX)
-      id  <- TeacherId.from(s"T$num").fold(_ => Gen.fail, Gen.const)
+      id <- TeacherId.from(s"T$num").fold(_ => Gen.fail, Gen.const)
     yield id
 
   private def externalIdGen: Gen[ExternalId] =
     for
       num <- Gen.chooseNum(RESOURCE_ID_MIN, RESOURCE_ID_MAX)
-      id  <- ExternalId.from(s"E$num").fold(_ => Gen.fail, Gen.const)
+      id <- ExternalId.from(s"E$num").fold(_ => Gen.fail, Gen.const)
     yield id
 
-  private def teacherGen: Gen[Teacher] =
+  private def availabilityGen(duration: Duration): Gen[Availability] =
+    for
+      start        <- dateTimeGen
+      end          <- Gen.const(start.plus(duration))
+      preference   <- preferenceGen
+      availability <- Availability.from(start, end, preference).fold(_ => Gen.fail, Gen.const)
+    yield availability
+
+  private def availabilitiesGen(duration: Duration): Gen[List[Availability]] =
+    for
+      availabilities <- Gen.nonEmptyListOf(availabilityGen(duration))
+    yield availabilities
+
+  private def teacherGen(availabilities: List[Availability]): Gen[Teacher] =
     for
       id           <- teacherIdGen
       name         <- nameGen
-      availability <- Gen.choose(1,12).flatMap(n => Gen.listOfN(n, availabilityGen))
-    yield Teacher(id, name, availability)
+    yield Teacher(id, name, availabilities)
 
-  private def externalGen: Gen[External] =
+  private def externalGen(availabilities: List[Availability]): Gen[External] =
     for
       id           <- externalIdGen
       name         <- nameGen
-      availability <- Gen.choose(1,12).flatMap(n => Gen.listOfN(n, availabilityGen))
-    yield External(id, name, availability)
+    yield External(id, name, availabilities)
 
-  // TODO: Add more generators
+  private def resourcesGen(duration: Duration): Gen[List[Resource]] =
+    for
+      availabilities <- availabilitiesGen(duration)
+      resources      <- Gen.nonEmptyListOf(Gen.oneOf(teacherGen(availabilities), externalGen(availabilities)))
+    yield resources.groupBy(_.id).flatMap(_._2).toList
+
+  private def roleGen(resource: Resource): Gen[Role] =
+    resource match
+      case _: Teacher  => Gen.oneOf(Role.President(resource), Role.Advisor(resource), Role.CoAdvisor(resource))
+      case _: External => Gen.oneOf(Role.Supervisor(resource), Role.CoAdvisor(resource))
+
+  private def vivasGen(resources: List[Resource]): Gen[Viva] =
+    for
+      student        <- studentGen
+      title          <- titleGen
+      jury           = resources.flatMap(r => roleGen(r).sample)
+      viva           <- Viva.from(student, title, jury).fold(_ => Gen.fail, Gen.const)
+    yield viva
+
+  private def agendaGen: Gen[Agenda] =
+    for
+      duration  <- genDuration
+      resources <- resourcesGen(duration)
+      rGrouped  = resources.grouped(6).toList//Gen.chooseNum(1, resources.size).flatMap(n => resources.grouped(n).toList)
+      vivas     = rGrouped.map(resourceList => vivasGen(resourceList).sample)
+    yield Agenda(duration, vivas.flatten, resources)
 
   // Properties
   property("Preference must be between 1 and 5") =
@@ -188,8 +217,9 @@ object Generators extends Properties("Generators"):
     }
 
   property("All availabilities must be valid") =
-    forAll(availabilityGen):
-      av => av.start.isBefore(av.end)
+    forAll(genDuration): d =>
+      forAll(availabilityGen(d)): av =>
+         !av.end.isBefore(av.start)
 
   property("All teacherIds must have the format T[0-9]{3}") =
     forAll(teacherIdGen):
@@ -200,15 +230,21 @@ object Generators extends Properties("Generators"):
       eid => eid.value.matches("E[0-9]{3}")
 
   property("All teachers must have a id, name and at least one availability.") =
-    forAll(teacherGen):
-      t =>
-        !t.name.to.isBlank &&
-        !t.id.value.isBlank &&
-        t.availability.nonEmpty
+    forAll(genDuration): g =>
+      forAll(availabilitiesGen(g)): a =>
+        forAll(teacherGen(a)): t =>
+            !t.name.to.isBlank &&
+            !t.id.value.isBlank &&
+            t.availability.nonEmpty
 
   property("All externals must have a id, name and at least one availability.") =
-    forAll(externalGen):
-      e =>
-        !e.name.to.isBlank &&
-        !e.id.value.isBlank &&
-         e.availability.nonEmpty
+    forAll(genDuration): g =>
+      forAll(availabilitiesGen(g)): a =>
+        forAll(externalGen(a)): e =>
+            !e.name.to.isBlank &&
+            !e.id.value.isBlank &&
+             e.availability.nonEmpty
+
+  property("Schedule agenda") =
+    forAll(agendaGen):
+      a => ScheduleVivaService.scheduleVivaFromAgenda(a).isRight
