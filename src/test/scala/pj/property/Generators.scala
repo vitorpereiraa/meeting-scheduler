@@ -44,7 +44,7 @@ object Generators extends Properties("Generators"):
       sum_pref <- SummedPreference.from(num).fold(_ => Gen.fail, x => Gen.const(x))
     yield sum_pref
 
-  private def genDuration: Gen[Duration] = for {
+  def genDuration: Gen[Duration] = for {
       hour <- Gen.chooseNum(MIN_HOUR, MAX_HOUR)
       minute <- Gen.chooseNum(MIN_MINUTE, MAX_MINUTE)
       hourStr = hour.toString.reverse.padTo(2, '0').reverse
@@ -109,7 +109,7 @@ object Generators extends Properties("Generators"):
       id <- ExternalId.from(s"E$num").fold(_ => Gen.fail, Gen.const)
     yield id
 
-  private def availabilityGen(duration: Duration): Gen[Availability] =
+  def availabilityGen(duration: Duration): Gen[Availability] =
     for
       start        <- dateTimeGen
       end          <- Gen.const(start.plus(duration))
@@ -117,7 +117,7 @@ object Generators extends Properties("Generators"):
       availability <- Availability.from(start, end, preference).fold(_ => Gen.fail, Gen.const)
     yield availability
 
-  private def availabilitiesGen(duration: Duration): Gen[List[Availability]] =
+  def availabilitiesGen(duration: Duration): Gen[List[Availability]] =
     for
       availabilities <- Gen.nonEmptyListOf(availabilityGen(duration))
     yield availabilities
