@@ -10,7 +10,7 @@ import pj.domain.Availability
 
 object ScheduleVivaServiceGenerator extends Properties("ScheduleVivaServiceGenerator"):
   val availabilityListGen: Gen[List[Availability]] = for {
-    duration <- Generators.genDuration
+    duration <- Generators.durationGen
     availabilities <- Gen.nonEmptyListOf(Generators.availabilityGen(duration))
   } yield availabilities
 

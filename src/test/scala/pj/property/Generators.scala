@@ -47,7 +47,7 @@ object Generators extends Properties("Generators"):
       sum_pref <- SummedPreference.from(num).fold(_ => Gen.fail, x => Gen.const(x))
     yield sum_pref
 
-  def genDuration: Gen[Duration] = for {
+  def durationGen: Gen[Duration] = for {
       hour <- Gen.chooseNum(MIN_HOUR, MAX_HOUR)
       minute <- Gen.chooseNum(MIN_MINUTE, MAX_MINUTE)
       hourStr = hour.toString.reverse.padTo(2, '0').reverse
@@ -71,6 +71,11 @@ object Generators extends Properties("Generators"):
   def studentGen: Gen[Student] =
     for
       num <- Gen.chooseNum(MIN_NUMBER, MAX_NUMBER)
+      student <- Student.from("Student" + s"$num").fold(_ => Gen.fail, Gen.const)
+    yield student
+
+  def studentGen(num: Int): Gen[Student] =
+    for
       student <- Student.from("Student" + s"$num").fold(_ => Gen.fail, Gen.const)
     yield student
 
@@ -106,9 +111,19 @@ object Generators extends Properties("Generators"):
       id <- TeacherId.from(s"T$num").fold(_ => Gen.fail, Gen.const)
     yield id
 
+  def teacherIdGen(num: Int): Gen[TeacherId] =
+    for
+      id <- TeacherId.from(s"T$num").fold(_ => Gen.fail, Gen.const)
+    yield id
+
   def externalIdGen: Gen[ExternalId] =
     for
       num <- Gen.chooseNum(RESOURCE_ID_MIN, RESOURCE_ID_MAX)
+      id <- ExternalId.from(s"E$num").fold(_ => Gen.fail, Gen.const)
+    yield id
+
+  def externalIdGen(num: Int): Gen[ExternalId] =
+    for
       id <- ExternalId.from(s"E$num").fold(_ => Gen.fail, Gen.const)
     yield id
 
@@ -131,10 +146,22 @@ object Generators extends Properties("Generators"):
       name         <- nameGen
     yield Teacher(id, name, availabilities)
 
+  def teacherGen(num: Int, availabilities: List[Availability]): Gen[Teacher] =
+    for
+      id <- teacherIdGen(num)
+      name <- nameGen
+    yield Teacher(id, name, availabilities)
+
   def externalGen(availabilities: List[Availability]): Gen[External] =
     for
       id           <- externalIdGen
       name         <- nameGen
+    yield External(id, name, availabilities)
+
+  def externalGen(num: Int, availabilities: List[Availability]): Gen[External] =
+    for
+      id <- externalIdGen(num)
+      name <- nameGen
     yield External(id, name, availabilities)
 
   def resourcesGen(duration: Duration): Gen[List[Resource]] =
@@ -158,7 +185,7 @@ object Generators extends Properties("Generators"):
 
   def agendaGen: Gen[Agenda] =
     for
-      duration  <- genDuration
+      duration  <- durationGen
       resources <- resourcesGen(duration)
       rGrouped  = resources.grouped(6).toList//Gen.chooseNum(1, resources.size).flatMap(n => resources.grouped(n).toList)
       vivas     = rGrouped.map(resourceList => vivasGen(resourceList).sample)
@@ -171,7 +198,7 @@ object Generators extends Properties("Generators"):
       start <- dateTimeGen
       end <- dateTimeGen
       summedPreference <- summedPreferenceGen
-      duration <- genDuration
+      duration <- durationGen
       resources <- resourcesGen(duration)
       roles = resources.flatMap(resource => roleGen(resource).sample)
     yield ScheduledViva(student, title, roles, start, end, summedPreference)
@@ -188,12 +215,12 @@ object Generators extends Properties("Generators"):
     })
 
   property("All duration must have an hour between 0 and 23 and minutes between 0 and 59") =
-    forAll(genDuration) { d =>
+    forAll(durationGen) { d =>
       d.getHour >= MIN_HOUR && d.getHour <= MAX_HOUR && d.getMinute >= MIN_MINUTE && d.getMinute <= MAX_MINUTE
     }
 
   property("Duration hour and minute must always be two digits") =
-    forAll(genDuration) { d =>
+    forAll(durationGen) { d =>
       val hour = d.toString.trim.split(":")(0)
       val minute = d.toString.trim.split(":")(1)
       hour.length == HOUR_MINUTE_LENGTH && minute.length == HOUR_MINUTE_LENGTH
@@ -232,7 +259,7 @@ object Generators extends Properties("Generators"):
     }
 
   property("All availabilities must be valid") =
-    forAll(genDuration): d =>
+    forAll(durationGen): d =>
       forAll(availabilityGen(d)): av =>
          !av.end.isBefore(av.start)
 
@@ -245,7 +272,7 @@ object Generators extends Properties("Generators"):
       eid => eid.value.matches("E[0-9]{3}")
 
   property("All teachers must have a id, name and at least one availability.") =
-    forAll(genDuration): g =>
+    forAll(durationGen): g =>
       forAll(availabilitiesGen(g)): a =>
         forAll(teacherGen(a)): t =>
             !t.name.to.isBlank &&
@@ -253,7 +280,7 @@ object Generators extends Properties("Generators"):
             t.availability.nonEmpty
 
   property("All externals must have a id, name and at least one availability.") =
-    forAll(genDuration): g =>
+    forAll(durationGen): g =>
       forAll(availabilitiesGen(g)): a =>
         forAll(externalGen(a)): e =>
             !e.name.to.isBlank &&
