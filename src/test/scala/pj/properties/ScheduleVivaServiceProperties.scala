@@ -10,11 +10,12 @@ import pj.domain.SimpleTypes.Duration
 import pj.domain.scheduleviva.ScheduleVivaService
 
 object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProperties"):
-  
+
   val MIN_TEACHERS       = 2
   val MAX_TEACHERS       = 100
   val MIN_EXTERNALS      = 1
   val MAX_EXTERNALS      = 100
+  val MAX_VIVAS          = 100
 
   def schedulableTeacherGen(tid: Int): Gen[Teacher] =
     for
@@ -36,8 +37,41 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
       externals    <- Gen.sequence[List[External], External]((0 to externalsQty).map(externalGen))
     yield teachers ::: externals
 
-  def schedulableVivasGen(resources: List[Resource])(duration: Duration): Gen[List[Viva]] =
+  def schedulableAvailabilitiesGen(availability: Availability, duration: Duration): Gen[List[Availability]] =
     ???
+
+  def updateResourceAvailability(role: Role, availability: Availability, duration: Duration): Gen[Role] =
+    for
+      availabilities <- schedulableAvailabilitiesGen(availability, duration)
+    yield role match
+        case Role.President(Teacher(id, name, _)) => Role.President(Teacher(id, name, availabilities))
+        case Role.Advisor(Teacher(id, name, _))   => Role.Advisor(Teacher(id, name, availabilities))
+        case Role.CoAdvisor(Teacher(id, name, _)) => Role.CoAdvisor(Teacher(id, name, availabilities))
+        case Role.CoAdvisor(External(id, name, _)) => Role.CoAdvisor(External(id, name, availabilities))
+        case Role.Supervisor(External(id, name, _)) => Role.Supervisor(External(id, name, availabilities))
+
+  def schedulableVivaGen(jury: List[Role]):  Gen[Viva] =
+    for
+      student <- studentGen
+      title   <- titleGen
+      viva    <- Viva.from(student, title, jury).fold(_ => Gen.fail, Gen.const)
+    yield viva
+
+  def schedulableVivasGen(resources: List[Resource])(duration: Duration): Gen[List[Viva]] =
+    for
+      n  <- Gen.chooseNum(1, MAX_VIVAS)
+      lg = (1 to n).foldLeft(Gen.const((resources, List.empty[Viva])))((gll, _) =>
+        for
+          (resourcesList, vivaList) <- gll
+          someResources             <- Gen.someOf(resourcesList)
+          jury                      <- rolesGen(someResources.toSet)
+          candidateAvailability     <- availabilityGen
+          juryUpdated               <- Gen.sequence[List[Role], Role](jury.map(j => updateResourceAvailability(j, candidateAvailability, duration)))
+          viva                      <- schedulableVivaGen(juryUpdated)
+        yield (resourcesList, vivaList.::(viva))
+      )
+      lv <- lg.map((_, vivaList) => vivaList)
+    yield lv
 
   def schedulableAgendaGen: Gen[Agenda] =
     for
