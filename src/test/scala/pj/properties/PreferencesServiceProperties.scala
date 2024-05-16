@@ -1,4 +1,4 @@
-package pj.property
+package pj.properties
 
 import org.scalacheck.*
 import org.scalacheck.Prop.forAll
@@ -8,11 +8,24 @@ import pj.domain.Role.{Advisor, President}
 import pj.domain.SimpleTypes.*
 import pj.domain.preference.PreferencesService.*
 import pj.domain.scheduleviva.ScheduleVivaService
-import pj.property.Generators.*
+import pj.properties.DomainProperties.*
+import pj.properties.SimpleTypesProperties.*
 
 import scala.xml.Elem
 
-object PreferencesGenerators extends Properties("PreferencesGenerators"):
+object PreferencesServiceProperties extends Properties("PreferencesGenerators"):
+
+  def scheduledVivaGen: Gen[ScheduledViva] =
+    for
+      student          <- studentGen
+      title            <- titleGen
+      start            <- dateTimeGen
+      end              <- dateTimeGen
+      summedPreference <- summedPreferenceGen
+      duration         <- durationGen
+      resources        <- resourcesGen
+      roles            <- rolesGen(resources.toSet)
+    yield ScheduledViva(student, title, roles, start, end, summedPreference)
 
   property("PreferencesService.sumPreferences") =
     forAll(Gen.nonEmptyListOf(preferenceGen)) { preferences =>
