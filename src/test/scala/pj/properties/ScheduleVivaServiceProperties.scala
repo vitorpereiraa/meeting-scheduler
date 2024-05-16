@@ -37,8 +37,22 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
       externals    <- Gen.sequence[List[External], External]((0 to externalsQty).map(externalGen))
     yield teachers ::: externals
 
+  def schedulableAvailabilityGen(duration: Duration): Gen[Availability] =
+    for
+      start        <- dateTimeGen
+      preference   <- preferenceGen
+      availability <- Availability.from(start, start.plus(duration), preference).fold(_ => Gen.fail, Gen.const)
+    yield availability
+
+  /**
+   * This generator must be improved.
+   * The goal is to create a list of random availabilities that has the "intersection" in between.
+   */
   def schedulableAvailabilitiesGen(availability: Availability, duration: Duration): Gen[List[Availability]] =
-    ???
+    for
+      availabilitiesQty <- Gen.choose(MIN_AVAILABILITIES, MAX_AVAILABILITIES)
+      availabilities    <- Gen.listOfN(availabilitiesQty, availabilityGen)
+    yield availabilities.::(availability)
 
   def updateResourceAvailability(role: Role, availability: Availability, duration: Duration): Gen[Role] =
     for
@@ -49,6 +63,7 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
         case Role.CoAdvisor(Teacher(id, name, _)) => Role.CoAdvisor(Teacher(id, name, availabilities))
         case Role.CoAdvisor(External(id, name, _)) => Role.CoAdvisor(External(id, name, availabilities))
         case Role.Supervisor(External(id, name, _)) => Role.Supervisor(External(id, name, availabilities))
+        case _ => role
 
   def schedulableVivaGen(jury: List[Role]):  Gen[Viva] =
     for
@@ -57,6 +72,9 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
       viva    <- Viva.from(student, title, jury).fold(_ => Gen.fail, Gen.const)
     yield viva
 
+  /**
+   * Edge cases missing, must be improved.
+   */
   def schedulableVivasGen(resources: List[Resource])(duration: Duration): Gen[List[Viva]] =
     for
       n  <- Gen.chooseNum(1, MAX_VIVAS)
@@ -65,7 +83,7 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
           (resourcesList, vivaList) <- gll
           someResources             <- Gen.someOf(resourcesList)
           jury                      <- rolesGen(someResources.toSet)
-          candidateAvailability     <- availabilityGen
+          candidateAvailability     <- schedulableAvailabilityGen(duration)
           juryUpdated               <- Gen.sequence[List[Role], Role](jury.map(j => updateResourceAvailability(j, candidateAvailability, duration)))
           viva                      <- schedulableVivaGen(juryUpdated)
         yield (resourcesList, vivaList.::(viva))
