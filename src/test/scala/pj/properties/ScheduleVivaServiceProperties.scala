@@ -46,15 +46,24 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
       availability <- Availability.from(start, start.plus(duration), preference).fold(_ => Gen.fail, Gen.const)
     yield availability
 
-  /**
-   * TODO: This generator must be improved.
-   * The goal is to create a list of random availabilities that has the "intersection" in between.
-   */
   def schedulableAvailabilitiesGen(availability: Availability, duration: Duration): Gen[List[Availability]] =
     for
       availabilitiesQty <- Gen.choose(MIN_AVAILABILITIES, MAX_AVAILABILITIES)
-      availabilities    <- Gen.listOfN(availabilitiesQty, availabilityGen)
-    yield availabilities.::(availability)
+      availabilities <- Gen.listOfN(availabilitiesQty, overlappingAvailabilityGen(availability, duration))
+    yield availabilities.::(availability).reverse
+
+  def overlappingAvailabilityGen(baseAvailability: Availability, duration: Duration): Gen[Availability] =
+    val baseStart = baseAvailability.start
+    val baseEnd = baseAvailability.end
+
+    for
+      overlapStartOffset <- Gen.choose(0L, duration.toMillis) // Random offset within the given duration
+      overlapEndOffset <- Gen.choose(duration.toMillis, (baseEnd.toMillis - baseStart.toMillis) - duration.toMillis) // Ensures the overlap is at least the duration
+      newStart = baseStart.plusMillis(overlapStartOffset)
+      newEnd = newStart.plusMillis(overlapEndOffset)
+      preference <- preferenceGen
+      availability <- Availability.from(newStart, newEnd, preference).fold(_ => Gen.fail, Gen.const)
+    yield availability
 
   def updateResourceAvailability(resource: Resource, availability: Availability, duration: Duration): Gen[Resource] =
     for
@@ -87,7 +96,7 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
           updatedResources          <- Gen.sequence[List[Resource], Resource](someResources.map(r => updateResourceAvailability(r, candidateAvailability, duration)))
           jury                      <- rolesGen(updatedResources.toSet)
           viva                      <- schedulableVivaGen(jury)
-        yield (mergeResources(resourcesList, updatedResources), vivaList.::(viva))
+        yield (mergeResources(resourcesList, updatedResources), viva :: vivaList)
       )
     yield lg
 

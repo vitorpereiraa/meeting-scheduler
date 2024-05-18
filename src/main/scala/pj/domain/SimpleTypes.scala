@@ -43,6 +43,7 @@ object SimpleTypes:
     def isBefore(other: Duration): Boolean = d.isBefore(other)
     def getHour: Int = d.getHour
     def getMinute: Int = d.getMinute
+    def toMillis: Long = d.toNanoOfDay / 1000000
 
   opaque type Title = String
   object Title:
@@ -91,6 +92,8 @@ object SimpleTypes:
     def plus(other: Duration): DateTime =
       val totalMinutes = other.getHour * 60 + other.getMinute
       d.plusMinutes(totalMinutes)
+    def toMillis: Long = d.toInstant(java.time.ZoneOffset.UTC).toEpochMilli
+    def plusMillis(millis: Long): DateTime = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(d.toMillis + millis), java.time.ZoneOffset.UTC)
     
   opaque type Preference = Int
   object Preference:

@@ -10,7 +10,7 @@ object SimpleTypesProperties extends Properties("SimpleTypesProperties"):
   val MIN_NUMBER = 1
   val MAX_NUMBER = 999
   val MIN_NAME_LENGTH = 1
-  val MAX_NAME_LENGTH = 100
+  val MAX_NAME_LENGTH = 10
   val MIN_PREF_LIMIT = 1
   val MAX_PREF_LIMIT = 5
   val MAX_SUM_PREF_LIMIT = 10000
@@ -97,6 +97,9 @@ object SimpleTypesProperties extends Properties("SimpleTypesProperties"):
     val febDays = if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) 29 else 28 // feb days depend if it is a leap year
     val days = Array(31, febDays , 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
     days(month - 1)
+
+  def dateTimeGenSuchThat(predicate: DateTime => Boolean): Gen[DateTime] =
+    dateTimeGen.suchThat(predicate)
 
   // Properties
   property("Preference must be between 1 and 5") =
