@@ -44,9 +44,85 @@ The `property("Schedule agenda")` function is a property test that validates the
 
 In summary, the ScheduleVivaServiceProperties class provides a set of property-based tests for the ScheduleVivaService class. It helps ensure that the scheduling system can correctly schedule viva sessions under various conditions and constraints.
 
+## Bugs found
+
+The calculation of the duration between 2 date times produced wrong output when the days of the date times are different.
+```scala
+def fromBetween(start: DateTime, end: DateTime): Result[Duration] =
+    val startMinutes = start.getHour * 60 + start.getMinute
+    val endMinutes = end.getHour * 60 + end.getMinute
+    val durationMinutes = endMinutes - startMinutes
+    from(durationMinutes / 60, durationMinutes % 60)
+```
+The faulty function above was replaced with the following:
+
+```scala
+def fromBetween(start: DateTime, end: DateTime): Result[Duration] =
+    Try(java.time.Duration.between(start, end))
+      .fold(
+        error => Left(InvalidDuration(start.toString + "between" + end.toString)),
+        duration =>
+          Try(LocalTime.of(duration.toHours.toInt,(duration.toMinutes % 60).toInt))
+            .fold(
+              error => Left(InvalidDuration(duration.toString)),
+              success => Right(success)
+            )
+      )
+```
+
+## The First-Come First Served (FCFS) Problem
+
+The property based test for the scheduling algorithm fails because it finds an example where the scheduling fails because of the FCFS nature of the algorithm.
+
+For instance, assume an example agenda with a 09:40 duration requirement and with the following vivas: 
+
+**Viva 1: Student999**
+
+Participants and their availabilities:
+
+1. Supervisor (ExternalId E001):
+    * 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+    * 9999-12-01T01:44:41 to 9999-12-01T11:24:41
+2. President (TeacherId T000):
+    * 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+    * 9999-12-01T01:44:41 to 9999-12-01T11:24:41
+3. Advisor (TeacherId T001):
+    * 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+    * 9999-12-01T01:44:41 to 9999-12-01T11:24:41
+
+**Viva 2: Student254**
+
+Participants and their availabilities:
+
+1. Supervisor (ExternalId E001):
+    * 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+    * 9999-12-01T01:44:41 to 9999-12-01T11:24:41
+2. CoAdvisor (ExternalId E000):
+    * 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+3. President (TeacherId T000):
+    * 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+    * 9999-12-01T01:44:41 to 9999-12-01T11:24:41
+4. Advisor (TeacherId T001):
+    * 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+    * 9999-12-01T01:44:41 to 9999-12-01T11:24:41
+
+**Availability intersections:**
+
+**For Viva 1:**
+
+* **Participants:** Supervisor (E001), President (T000), Advisor (T001)
+* **FCFS Common Time Slot chosen:** 9999-01-17T00:24:38 to 9999-01-17T10:04:38
+
+**For Viva 2:**
+
+* **Participants:** Supervisor (E001), CoAdvisor (E000), President (T000), Advisor (T001)
+* **FCFS Common Time Slot:  FAILS**
+
+The schedule fails because viva 1 chose the first intersection it found(9999-01-17T00:24:38 to 9999-01-17T10:04:38), which is the only time that would work for viva 2. If viva 1 chose the second time slot that works instead of the first one(9999-12-01T01:44:41 to 9999-12-01T11:24:41), the agenda would be schedulable.
 
 ## Future Improvements
 
+Fix the FCFS problem.
 
 ## Conclusion
 
