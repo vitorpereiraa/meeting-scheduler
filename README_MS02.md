@@ -44,6 +44,10 @@ The `property("Schedule agenda")` function is a property test that validates the
 
 In summary, the ScheduleVivaServiceProperties class provides a set of property-based tests for the ScheduleVivaService class. It helps ensure that the scheduling system can correctly schedule viva sessions under various conditions and constraints.
 
+## Test Results
+Below is an image showing the results of the test execution:
+![Property Tests Result](diagrams/propertyTest.png)
+
 ## Bugs found
 
 The calculation of the duration between 2 date times produced wrong output when the days of the date times are different.
