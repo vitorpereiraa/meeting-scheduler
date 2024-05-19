@@ -82,9 +82,6 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
   def mergeResources(resourceList: List[Resource], updatedResources: List[Resource]): List[Resource] =
     resourceList.map(r => updatedResources.find(_.id == r.id).fold(ifEmpty = r)(updated => updated))
 
-  /**
-   * TODO: Edge cases might be missing.
-   */
   def schedulableVivasGen(resources: List[Resource])(duration: Duration): Gen[(List[Resource],List[Viva])] =
     for
       n  <- Gen.chooseNum(1, MAX_VIVAS)

@@ -1,4 +1,4 @@
-package pj.property
+package pj.properties
 
 import org.scalacheck.Prop.{forAll, propBoolean}
 import org.scalacheck.Properties
@@ -7,7 +7,7 @@ import pj.domain.availability.AvailabilityService
 import pj.properties.{DomainProperties, SimpleTypesProperties}
 
 
-object AvailabiltyServiceGenerators extends Properties("Availability"):
+object AvailabilityServiceProperties extends Properties("AvailabilityServiceProperties"):
 
   property("removeInterval") =
     forAll(SimpleTypesProperties.durationGen): g =>
