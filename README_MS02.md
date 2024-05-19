@@ -120,9 +120,12 @@ Participants and their availabilities:
 
 The schedule fails because viva 1 chose the first intersection it found(9999-01-17T00:24:38 to 9999-01-17T10:04:38), which is the only time that would work for viva 2. If viva 1 chose the second time slot that works instead of the first one(9999-12-01T01:44:41 to 9999-12-01T11:24:41), the agenda would be schedulable.
 
-## Future Improvements
+### Future Improvements
 
-Fix the FCFS problem.
+1. **Fix the FCFS Problem**: Adjust the algorithm to consider alternative valid slots for earlier viva to maximize the overall scheduling success.
+2. **Enhance Property Definitions**: Expand the set of properties to cover more complex scenarios and edge cases.
+3. **Extend Constraints Handling**: Implement additional constraints such as resource preferences.
 
-## Conclusion
+### Conclusion
 
+In Milestone 2, we successfully implemented property-based tests to validate the scheduling system. By defining key properties and using random generators, we ensured that the system adheres to the specified constraints and performs reliably under various conditions. These tests provide a strong foundation for further development and optimization of the scheduling algorithm in subsequent milestones.
