@@ -5,7 +5,7 @@ import pj.io.FileIO.load
 
 import scala.xml.*
 
-class ScheduleMS01Test extends AnyFunSuite, ScheduleMS01Behaviours:
+class ScheduleMS01Test extends AnyFunSuite, ScheduleBehaviours:
 
   val PATH = "files/test/ms01" // Schedule file path
   performTests(ScheduleMS01.create, "Milestone 1")

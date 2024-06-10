@@ -13,7 +13,7 @@ import pj.domain.{DomainError, Result }
 import pj.domain.DomainError.IOFileProblem
 
 
-trait ScheduleMS01Behaviours extends AnyFunSuite:
+trait ScheduleBehaviours extends AnyFunSuite:
   val IN = "_in.xml"              // Input file termination
   val OUT = "_out.xml"            // Output file termination
   val OUTERROR = "_outError.xml"  // Error file termination
