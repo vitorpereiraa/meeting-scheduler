@@ -12,6 +12,11 @@
             <advisor id="T004"/>
             <supervisor id="E002"/>
         </viva>
+        <viva student="Student 003" title="Title 3">
+            <president id="T001"/>
+            <advisor id="T003"/>
+            <supervisor id="E003"/>
+        </viva>
     </vivas>
     <resources>
         <teachers>
@@ -31,6 +36,14 @@
                 <availability start="2024-05-30T10:30:00" end="2024-05-30T11:30:00" preference="5"/>
                 <availability start="2024-05-30T14:30:00" end="2024-05-30T17:00:00" preference="5"/>
             </teacher>
+            <teacher id="T005" name="Teacher 005">
+                <availability start="2024-06-30T10:30:00" end="2024-06-30T11:30:00" preference="5"/>
+                <availability start="2024-06-30T14:30:00" end="2024-06-30T17:00:00" preference="5"/>
+            </teacher>
+            <teacher id="T006" name="Teacher 006">
+                <availability start="2024-06-30T10:30:00" end="2024-06-30T11:30:00" preference="5"/>
+                <availability start="2024-06-30T14:30:00" end="2024-06-30T17:00:00" preference="5"/>
+            </teacher>
         </teachers>
         <externals>
             <external id="E001" name="External 001">
@@ -39,6 +52,9 @@
             </external>
             <external id="E002" name="External 002">
                 <availability start="2024-05-30T15:00:00" end="2024-05-30T17:00:00" preference="1"/>
+            </external>
+            <external id="E003" name="External 003">
+                <availability start="2024-06-30T15:00:00" end="2024-06-30T17:00:00" preference="1"/>
             </external>
         </externals>
     </resources>

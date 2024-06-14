@@ -12,7 +12,7 @@ import scala.annotation.tailrec
 object ScheduleVivaServiceMS03:
 
   def scheduleVivaFromAgenda(agenda: Agenda, maxAttempts: Int): Result[List[ScheduledViva]] =
-    val (conflictingVivas, nonConflictingVivas) = partitionVivas(agenda.vivas, agenda.resources, agenda.duration)
+    val (conflictingVivas, nonConflictingVivas) = partitionVivas(agenda.vivas)
 
     val initialResources = agenda.resources
     val duration = agenda.duration
@@ -28,30 +28,18 @@ object ScheduleVivaServiceMS03:
     else
       Left(NoAvailableSlot())
 
-  /**
-   * FIXME This method is not implemented correctly
-   * pode estar depois a ter influência nos metodos seguintes
-   *
-   * @param vivas
-   * @param resources
-   * @param duration
-   * @return
-   */
-  def partitionVivas(vivas: List[Viva], resources: List[Resource], duration: Duration): (List[Viva], List[Viva]) =
-    val studentToVivas = vivas.groupBy(_.student)
-    val (conflicting, nonConflicting) = studentToVivas.values.foldLeft((List[Viva](), List[Viva]())):
-      case ((conf, nonConf), studentVivas) =>
-        val hasConflicts = studentVivas.exists { viva =>
-          val availabilities = getAvailabilitiesForVivas(viva, resources, duration)
-          availabilities match
-            case Right(availLists) =>
-              val flatAvail = availLists.flatten
-              flatAvail.exists(av1 => flatAvail.exists(av2 => av1 != av2 && IntervalAlgebra.overlaps(av1,av2)))
-            case Left(_) => false
-        }
-        if (hasConflicts) (conf ++ studentVivas, nonConf)
-        else (conf, nonConf ++ studentVivas)
-    (conflicting.distinct, nonConflicting)
+  def partitionVivas(vivas: List[Viva]): (List[Viva], List[Viva]) =
+    val vivasResources =
+      vivas.flatMap(x => x.jury)
+
+    val count = vivasResources.groupBy(identity).view.mapValues(_.size)
+
+    val intersects = count.filter(x => x._2 > 1).keys.toList
+
+    val vivasWhichResourcesIntersect =
+      vivas.filter(_.jury.exists(r => intersects.contains(r)))
+
+    (vivasWhichResourcesIntersect, vivas.diff(vivasWhichResourcesIntersect))
 
   def scheduleNonConflictingVivas(vivas: List[Viva], resources: List[Resource], duration: Duration): (List[ScheduledViva], List[Resource]) =
     vivas.foldLeft((List[ScheduledViva](), resources)) { case ((scheduled, res), viva) =>
