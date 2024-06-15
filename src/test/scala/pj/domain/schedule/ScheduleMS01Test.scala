@@ -19,9 +19,9 @@ class ScheduleMS01Test extends AnyFunSuite, ScheduleBehaviours:
 
   test("Valid agenda 01"):
       for
-        xml <- load("files/assessment/ms01/valid_agenda_01_in.xml")
+        xml <- load("files/assessment/ms01/group_valid_agenda_01_in.xml")
         result <- ScheduleMS01.create(xml)
-        expected <- load("files/assessment/ms01/valid_agenda_01_out.xml")
+        expected <- load("files/assessment/ms01/group_valid_agenda_01_out.xml")
       yield assert(Utility.trim(result) == Utility.trim(expected))
 
   test("Invalid agenda 01"):

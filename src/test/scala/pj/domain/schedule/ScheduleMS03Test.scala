@@ -12,9 +12,9 @@ class ScheduleMS03Test extends AnyFunSuite, ScheduleBehaviours:
 
   test("Valid agenda 01"):
       for
-        xml <- load("files/test/ms03/valid_agenda_01_in.xml")
+        xml <- load("files/test/ms03/group_valid_agenda_01_in.xml")
         result <- ScheduleMS03.create(xml)
-        expected <- load("files/test/ms03/valid_agenda_01_out.xml")
+        expected <- load("files/test/ms03/group_valid_agenda_01_out.xml")
       yield
         //println(Utility.trim(result))
         // pretty print
@@ -33,9 +33,9 @@ class ScheduleMS03Test extends AnyFunSuite, ScheduleBehaviours:
 
   test("Valid agenda 02"):
     for
-      xml <- load("files/test/ms03/valid_agenda_02_in.xml")
+      xml <- load("files/test/ms03/group_valid_agenda_02_in.xml")
       result <- ScheduleMS03.create(xml)
-      expected <- load("files/test/ms03/valid_agenda_02_out.xml")
+      expected <- load("files/test/ms03/group_valid_agenda_02_out.xml")
     yield
       //println(Utility.trim(result))
       // pretty print
@@ -54,9 +54,9 @@ class ScheduleMS03Test extends AnyFunSuite, ScheduleBehaviours:
 
   test("Valid agenda 03"):
     for
-      xml <- load("files/test/ms03/valid_agenda_03_in.xml")
+      xml <- load("files/test/ms03/group_valid_agenda_03_in.xml")
       result <- ScheduleMS03.create(xml)
-      expected <- load("files/test/ms03/valid_agenda_03_out.xml")
+      expected <- load("files/test/ms03/group_valid_agenda_03_out.xml")
     yield
       //println(Utility.trim(result))
       // pretty print
