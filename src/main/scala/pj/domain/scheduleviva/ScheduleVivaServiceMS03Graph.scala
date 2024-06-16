@@ -27,8 +27,6 @@ object ScheduleVivaServiceMS03Graph:
     longestPath(graph, sortedNodes)
 
   def constructGraph(candidates: List[(Viva, List[(Availability, SummedPreference)])], resources: List[Resource], duration: Duration): Map[Node, List[Edge]] =
-    val graph: Map[Node, List[Edge]] = Map().withDefaultValue(List())
-
     // Create all nodes
     val nodes = for {
       (viva, availabilities) <- candidates
@@ -44,8 +42,26 @@ object ScheduleVivaServiceMS03Graph:
     }
 
     // Construct the graph
-    edges.groupBy(_._1).map:
+    val graph = edges.groupBy(_._1).map:
       case (node, edgeList) => node -> edgeList.map(_._2)
+
+    removeCycles(graph)
+
+  def removeCycles(graph: Map[Node, List[Edge]]): Map[Node, List[Edge]] =
+    def dfs(node: Node, visited: Set[Node], stack: Set[Node]): Boolean =
+      if stack.contains(node) then true // Cycle detected
+      else if visited.contains(node) then false
+      else
+        val newVisited = visited + node
+        val newStack = stack + node
+        val neighbors = graph.getOrElse(node, List()).map(_.node)
+        neighbors.exists(dfs(_, newVisited, newStack))
+
+    graph.map { case (node, edges) =>
+      val filteredEdges = edges.filter(edge => !dfs(edge.node, Set.empty, Set(node)))
+      node -> filteredEdges
+    }
+
 
   def topologicalSort(graph: Map[Node, List[Edge]]): List[Node] =
     def dfs(node: Node, visited: Set[Node], stack: List[Node]): (Set[Node], List[Node]) =
@@ -62,6 +78,13 @@ object ScheduleVivaServiceMS03Graph:
 
     stack.reverse
 
+  /*
+  *  Requirements:
+  *  * The result path can't include nodes from the same viva
+  *  * The result path can't have nodes with resources in common and overlapping availabilities
+  *  * maximize the sum of preferences (which is the weight)
+  *  * When choosing each node in a path, the resources must be updated
+  */
   def longestPath(graph: Map[Node, List[Edge]], topoSortedNodes: List[Node]): List[ScheduledViva] =
     val distances = topoSortedNodes.foldLeft(Map[Node, Int]().withDefaultValue(Int.MinValue)) { (dist, node) =>
       val maxDist = graph(node).foldLeft(dist) { (d, edge) =>

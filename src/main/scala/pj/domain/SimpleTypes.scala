@@ -92,6 +92,7 @@ object SimpleTypes:
     def plus(other: Duration): DateTime =
       val totalMinutes = other.getHour * 60 + other.getMinute
       d.plusMinutes(totalMinutes)
+    def plusHours(hours: Int): DateTime = d.plusHours(hours)
     def toMillis: Long = d.toInstant(java.time.ZoneOffset.UTC).toEpochMilli
     def plusMillis(millis: Long): DateTime = LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(d.toMillis + millis), java.time.ZoneOffset.UTC)
     
