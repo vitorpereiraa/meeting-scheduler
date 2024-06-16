@@ -81,10 +81,10 @@ object AvailabilityService :
     val (availability, summedPreference) = possibleScheduleTuple
     list
       .find(a1 => IntervalAlgebra.intersectable(availability, a1) && durationOfIntersectionIsEqualOrMoreThanDuration(availability, a1, duration))
-      .flatMap(a1 => intersection(possibleScheduleTuple, a1, duration))
+      .flatMap(a1 => intersection(possibleScheduleTuple, a1, duration))  
 
-  def intersectList(a: List[(Availability,SummedPreference)], b: List[Availability], duration: Duration): List[(Availability, SummedPreference)] =
-    a.flatMap(a1 => intersectAvailabilityWithList(a1, b, duration))
+  def intersectList(a: List[(Availability, SummedPreference)], b: List[Availability], duration: Duration): List[(Availability, SummedPreference)] =
+    a.flatMap(a1 => intersectAvailabilityWithList(a1, b, duration))  
 
   def intersectAll(a: List[List[Availability]], duration: Duration): List[(Availability,SummedPreference)] = a match
     case Nil => Nil
@@ -92,3 +92,25 @@ object AvailabilityService :
     
   def toPossibleScheduleTuple(a : List[Availability]): List[(Availability, SummedPreference)] =
     a.map(a1 => (a1, a1.preference.toSummedPreference))
+
+  def intersectAvailabilityWithListWithoutPref(possibleScheduleTuple: (Availability), list: List[Availability], duration: Duration): Option[(Availability)] =
+    val (availability) = possibleScheduleTuple
+    list
+      .find(a1 => IntervalAlgebra.intersectable(availability, a1) && durationOfIntersectionIsEqualOrMoreThanDuration(availability, a1, duration))
+      .flatMap(a1 => intersectionWithoutPref(possibleScheduleTuple, a1, duration))
+
+  def intersectListWithoutPref(a: List[(Availability)], b: List[Availability], duration: Duration): List[(Availability)] =
+    a.flatMap(a1 => intersectAvailabilityWithListWithoutPref(a1, b, duration))
+    
+  def intersectAllWithoutPref(a: List[List[Availability]], duration: Duration): List[Availability] = a match
+    case Nil => Nil
+    case head :: tail => tail.foldLeft(head)((acc, lst) => intersectListWithoutPref(acc, lst, duration))
+    
+  def intersectionWithoutPref(possibleScheduleTuple: (Availability), b: Availability, duration: Duration): Option[(Availability)] =
+    val (a) = possibleScheduleTuple
+    val start = a.start.max(b.start)
+    val end = a.end.min(b.end)
+    val res = for {
+      intersectionAv <- Availability.from(start, end, a.preference)
+    } yield (intersectionAv)
+    res.toOption

@@ -15,7 +15,7 @@ object ScheduleMS03 extends Schedule:
   def create(xml: Elem): Result[Elem] =
     for
       agenda <- XMLtoDomain.agenda(xml)
-      scheduledVivas <- ScheduleVivaServiceMS03.scheduleVivaFromAgenda(agenda,5)
+      scheduledVivas <- ScheduleVivaServiceMS03.scheduleVivaFromAgenda(agenda)
       totalPref <- PreferencesService.sumPreferencesOfScheduledVivas(scheduledVivas)
     yield DomainToXML.generateOutputXML(CompleteSchedule(scheduledVivas, totalPref))
 
