@@ -123,3 +123,5 @@ object SimpleTypes:
   extension (sp: SummedPreference)
     @targetName("SummedPreferenceTo")
     def to: Int = sp
+    @targetName("SummedPreferencePlus")
+    def +(other: SummedPreference): SummedPreference = sp + other

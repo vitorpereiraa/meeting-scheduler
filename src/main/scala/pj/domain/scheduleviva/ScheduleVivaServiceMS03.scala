@@ -22,6 +22,9 @@ object ScheduleVivaServiceMS03:
     // Schedule conflicting vivas with limited brute force
     val scheduledConflicting = scheduleConflictingVivas(conflictingVivas, scheduledNonConflicting._2, duration, maxAttempts)
 
+    // Schedule conflicting vivas using a DAG (Directed Acyclic Graph)
+    // val scheduledConflicting = ScheduleVivaServiceMS03Graph.scheduleConflictingVivas(conflictingVivas, scheduledNonConflicting._2, duration)
+
     if (scheduledConflicting.sizeIs == conflictingVivas.size)
       Right(scheduledNonConflicting._1 ++ scheduledConflicting)
     else
