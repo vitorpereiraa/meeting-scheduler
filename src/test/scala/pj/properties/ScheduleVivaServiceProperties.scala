@@ -8,14 +8,14 @@ import pj.properties.SimpleTypesProperties.*
 import pj.domain.*
 import pj.domain.SimpleTypes.Duration
 import pj.domain.resource.ResourceService.getNumOfTeachers
-import pj.domain.scheduleviva.ScheduleVivaService
+import pj.domain.scheduleviva.{ScheduleVivaService, ScheduleVivaServiceMS03}
 
 object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProperties"):
 
   // Minimal values to reproduce the FCFS schedule problem
   val MAX_TEACHERS       = 2
   val MAX_EXTERNALS      = 1
-  val MAX_VIVAS          = 2
+  val MAX_VIVAS          = 10
   val MIN_AVAILABILITIES = 0
   val MAX_AVAILABILITIES = 0
 
@@ -104,6 +104,12 @@ object ScheduleVivaServiceProperties extends Properties("ScheduleVivaServiceProp
       (resourcesUpdated, vivas) <- schedulableVivasGen(resources)(duration)
     yield Agenda(duration, vivas, resourcesUpdated)
 
-  property("Schedule agenda") =
+  property("Schedule agenda - milestone 3") =
+    forAll(schedulableAgendaGen):
+      a => ScheduleVivaServiceMS03.scheduleVivaFromAgenda(a).isRight
+      
+  property("Schedule agenda - milestone 1") =
     forAll(schedulableAgendaGen):
       a => ScheduleVivaService.scheduleVivaFromAgenda(a).isRight
+
+  
