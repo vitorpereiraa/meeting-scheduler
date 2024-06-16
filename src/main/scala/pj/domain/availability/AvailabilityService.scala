@@ -1,7 +1,7 @@
 package pj.domain.availability
 
 import pj.domain.DomainError.*
-import pj.domain.SimpleTypes.{DateTime, Duration}
+import pj.domain.SimpleTypes.{DateTime, Duration, SummedPreference}
 import pj.domain.*
 
 import scala.annotation.tailrec
@@ -67,19 +67,28 @@ object AvailabilityService :
       case Right(i) => !i.isBefore(duration)
       case Left(l) => false
 
-  def intersection(a: Availability, b: Availability, duration: Duration): Option[Availability] =
+  def intersection(possibleScheduleTuple: (Availability, SummedPreference), b: Availability, duration: Duration): Option[(Availability, SummedPreference)] =
+    val (a, summedPreference) = possibleScheduleTuple
     val start = a.start.max(b.start)
     val end   = a.end.min(b.end)
-    Availability.from(start, end, a.preference).toOption
+    val res = for {
+      summedPreference <- SummedPreference.from(summedPreference.to + b.preference.to)
+      intersectionAv   <- Availability.from(start, end, a.preference)
+    } yield (intersectionAv, summedPreference)
+    res.toOption
 
-  def intersectAvailabilityWithList(availability: Availability, list: List[Availability], duration: Duration): Option[Availability] =
+  def intersectAvailabilityWithList(possibleScheduleTuple: (Availability, SummedPreference), list: List[Availability], duration: Duration): Option[(Availability, SummedPreference)] =
+    val (availability, summedPreference) = possibleScheduleTuple
     list
       .find(a1 => IntervalAlgebra.intersectable(availability, a1) && durationOfIntersectionIsEqualOrMoreThanDuration(availability, a1, duration))
-      .flatMap(a1 => intersection(availability, a1, duration))
+      .flatMap(a1 => intersection(possibleScheduleTuple, a1, duration))
 
-  def intersectList(a: List[Availability], b: List[Availability], duration: Duration): List[Availability] =
+  def intersectList(a: List[(Availability,SummedPreference)], b: List[Availability], duration: Duration): List[(Availability, SummedPreference)] =
     a.flatMap(a1 => intersectAvailabilityWithList(a1, b, duration))
 
-  def intersectAll(a: List[List[Availability]], duration: Duration): List[Availability] = a match
+  def intersectAll(a: List[List[Availability]], duration: Duration): List[(Availability,SummedPreference)] = a match
     case Nil => Nil
-    case head :: tail => tail.foldLeft(head)((acc, lst) => intersectList(acc, lst, duration))
+    case head :: tail => tail.foldLeft(toPossibleScheduleTuple(head))((acc, lst) => intersectList(acc, lst, duration))
+    
+  def toPossibleScheduleTuple(a : List[Availability]): List[(Availability, SummedPreference)] =
+    a.map(a1 => (a1, a1.preference.toSummedPreference))

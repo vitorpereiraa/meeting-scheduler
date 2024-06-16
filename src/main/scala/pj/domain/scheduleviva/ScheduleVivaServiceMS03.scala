@@ -1,12 +1,11 @@
 package pj.domain.scheduleviva
 
 import pj.domain.*
-import pj.domain.DomainError.{NoAvailableSlot, StudentNotFound}
+import pj.domain.DomainError.NoAvailableSlot
 import pj.domain.SimpleTypes.*
-import pj.domain.availability.{AvailabilityService, IntervalAlgebra}
+import pj.domain.availability.AvailabilityService
 import pj.domain.preference.PreferencesService
 
-import scala.::
 import scala.annotation.tailrec
 
 object ScheduleVivaServiceMS03:
@@ -74,10 +73,10 @@ object ScheduleVivaServiceMS03:
       summedPreferences <- PreferencesService.calculatePreferences(originalResources, viva, firstAvailability, duration)
     } yield (ScheduledViva(viva.student, viva.title, viva.jury, firstAvailability.start, firstAvailability.start.plus(duration), summedPreferences), newResources)
 
-  def getBestAvailability(availabilities: List[Availability]): Result[Availability] =
-    val sortedAvailabilities = availabilities.sortBy(a => (-a.preference.to, a.start))
+  def getBestAvailability(availabilities: List[(Availability, SummedPreference)]): Result[Availability] =
+    val sortedAvailabilities = availabilities.sortBy(_._2.to)(Ordering[Int].reverse)
     sortedAvailabilities.headOption match
-      case Some(availability) => Right(availability)
+      case Some((availability, sp)) => Right(availability)
       case None => Left(NoAvailableSlot())
 
   def getAvailabilitiesForVivas(viva: Viva, resources: List[Resource], duration: Duration): Result[List[List[Availability]]] =

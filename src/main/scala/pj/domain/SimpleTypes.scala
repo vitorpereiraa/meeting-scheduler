@@ -111,6 +111,7 @@ object SimpleTypes:
   extension (p: Preference)
     @targetName("PreferenceTo")
     def to: Int = p
+    def toSummedPreference: SummedPreference = p 
 
   opaque type SummedPreference = Int
   object SummedPreference:

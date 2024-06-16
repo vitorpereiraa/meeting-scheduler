@@ -4,15 +4,14 @@ import org.scalatest.funsuite.AnyFunSuite
 import pj.domain.*
 import pj.domain.DomainError.NoAvailableSlot
 import pj.domain.SimpleTypes.*
-import pj.domain.schedule.ScheduleMS01
-import pj.domain.scheduleviva.ScheduleVivaService
+import pj.domain.scheduleviva.{ScheduleVivaService, ScheduleVivaServiceMS03}
 
 import scala.language.adhocExtensions
 
 class ScheduleVivaServiceTest extends AnyFunSuite:
 
   test("getFirstAvailability returns Left when the availabilities list is empty"):
-    val availabilities = List[Availability]()
+    val availabilities = List[(Availability, SummedPreference)]()
     val result = ScheduleVivaService.getFirstAvailability(availabilities)
     assert(result === Left(NoAvailableSlot()))
 
@@ -22,7 +21,8 @@ class ScheduleVivaServiceTest extends AnyFunSuite:
       end <- DateTime.from("2024-04-14T12:00")
       preference <- Preference.from(3)
       availability <- Availability.from(start, end, preference)
-      availabilities = List[Availability](availability)
+      preference <- SummedPreference.from(3)
+      availabilities = List[(Availability, SummedPreference)]((availability, preference))
       result = ScheduleVivaService.getFirstAvailability(availabilities)
     yield assert(result === Right(availability))
 
@@ -32,13 +32,15 @@ class ScheduleVivaServiceTest extends AnyFunSuite:
       end1 <- DateTime.from("2024-04-14T12:00")
       preference1 <- Preference.from(3)
       availability1 <- Availability.from(start1, end1, preference1)
+      preference1 <- SummedPreference.from(3)
 
       start2 <- DateTime.from("2024-04-15T09:00")
       end2 <- DateTime.from("2024-04-15T12:00")
       preference2 <- Preference.from(3)
       availability2 <- Availability.from(start2, end2, preference2)
+      preference2 <- SummedPreference.from(3)
 
-      availabilities = List[Availability](availability2, availability1) // availability1 is earlier
+      availabilities = List[(Availability, SummedPreference)]((availability2, preference2), (availability1, preference1)) // availability1 is earlier
       result = ScheduleVivaService.getFirstAvailability(availabilities)
     yield assert(result === Right(availability1))
 

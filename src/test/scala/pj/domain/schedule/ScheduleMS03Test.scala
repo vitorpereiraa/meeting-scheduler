@@ -20,13 +20,13 @@ class ScheduleMS03Test extends AnyFunSuite, ScheduleBehaviours:
         // pretty print
         val prettyPrinter = new PrettyPrinter(80, 2) // 80 is the width of the line, 2 is the number of spaces for indentation
         val prettyXml = prettyPrinter.formatNodes(result)
-        println(prettyXml)
+//        println(prettyXml)
 
         //println(Utility.trim(expected))
 
         val prettyPrinter2 = new PrettyPrinter(80, 2) // 80 is the width of the line, 2 is the number of spaces for indentation
         val prettyXml2 = prettyPrinter2.formatNodes(expected)
-        println(prettyXml2)
+//        println(prettyXml2)
 
 
         assert(Utility.trim(result) == Utility.trim(expected))
@@ -41,13 +41,13 @@ class ScheduleMS03Test extends AnyFunSuite, ScheduleBehaviours:
       // pretty print
       val prettyPrinter = new PrettyPrinter(80, 2) // 80 is the width of the line, 2 is the number of spaces for indentation
       val prettyXml = prettyPrinter.formatNodes(result)
-      println(prettyXml)
+//      println(prettyXml)
 
       //println(Utility.trim(expected))
 
       val prettyPrinter2 = new PrettyPrinter(80, 2) // 80 is the width of the line, 2 is the number of spaces for indentation
       val prettyXml2 = prettyPrinter2.formatNodes(expected)
-      println(prettyXml2)
+//      println(prettyXml2)
 
 
       assert(Utility.trim(result) == Utility.trim(expected))
@@ -62,13 +62,13 @@ class ScheduleMS03Test extends AnyFunSuite, ScheduleBehaviours:
       // pretty print
       val prettyPrinter = new PrettyPrinter(80, 2) // 80 is the width of the line, 2 is the number of spaces for indentation
       val prettyXml = prettyPrinter.formatNodes(result)
-      println(prettyXml)
+//      println(prettyXml)
 
       //println(Utility.trim(expected))
 
       val prettyPrinter2 = new PrettyPrinter(80, 2) // 80 is the width of the line, 2 is the number of spaces for indentation
       val prettyXml2 = prettyPrinter2.formatNodes(expected)
-      println(prettyXml2)
+//      println(prettyXml2)
 
 
       assert(Utility.trim(result) == Utility.trim(expected))

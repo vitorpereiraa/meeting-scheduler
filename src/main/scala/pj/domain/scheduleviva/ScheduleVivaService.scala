@@ -10,10 +10,10 @@ import scala.annotation.tailrec
 
 object ScheduleVivaService:
 
-  def getFirstAvailability(availabilities: List[Availability]): Result[Availability] =
-    val sortedAvailabilities = availabilities.sortBy(_.start)
+  def getFirstAvailability(availabilities: List[(Availability, SummedPreference)]): Result[Availability] =
+    val sortedAvailabilities = availabilities.sortBy(_._1.start)
     sortedAvailabilities.headOption match
-      case Some(availability) => Right(availability)
+      case Some((availability, sp)) => Right(availability)
       case None => Left(NoAvailableSlot())
 
   def getAvailabilitiesForVivas(viva: Viva, resources: List[Resource], duration: Duration): Result[List[List[Availability]]] =
